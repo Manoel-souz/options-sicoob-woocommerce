@@ -28,10 +28,13 @@ class Sicoob_API {
         
         // Definir URL base baseada no ambiente
         if ($environment === 'sandbox') {
-            $this->base_url = 'https://sandbox.api.sicoob.com.br';
+            $this->base_url = 'https://sandbox.sicoob.com.br/sicoob/sandbox';
         } else {
             $this->base_url = 'https://api.sicoob.com.br';
         }
+        
+        // Para sandbox, não precisamos de client_secret, apenas do token
+        // O Sicoob está usando Bearer Token direto, não OAuth 2.0
     }
     
     /**
@@ -39,6 +42,13 @@ class Sicoob_API {
      */
     private function get_access_token() {
         if ($this->access_token) {
+            return $this->access_token;
+        }
+        
+        // Para sandbox, usar o token fornecido diretamente
+        if ($this->environment === 'sandbox') {
+            // No sandbox, o token é fornecido diretamente
+            $this->access_token = '1301865f-c6bc-38f3-9f49-666dbcfc59c3';
             return $this->access_token;
         }
         
@@ -118,7 +128,12 @@ class Sicoob_API {
      * Criar pagamento
      */
     public function create_payment($payment_data) {
-        $endpoint = '/v1/payments';
+        // Usar API de Iniciação de Pagamento (ITP) para sandbox
+        if ($this->environment === 'sandbox') {
+            $endpoint = '/payments/v2/itp';
+        } else {
+            $endpoint = '/v1/payments';
+        }
         
         $data = array(
             'amount' => $payment_data['amount'],

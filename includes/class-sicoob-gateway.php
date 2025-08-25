@@ -55,7 +55,7 @@ class WC_Gateway_Sicoob extends WC_Payment_Gateway {
                 'title' => __('Título', 'sicoob-woocommerce'),
                 'type' => 'text',
                 'description' => __('Título que o cliente verá durante o checkout', 'sicoob-woocommerce'),
-                'default' => __('Sicoob', 'sicoob-woocommerce'),
+                'default' => __('Cartão de Crédito', 'sicoob-woocommerce'),
                 'desc_tip' => true,
             ),
             'description' => array(
@@ -80,9 +80,9 @@ class WC_Gateway_Sicoob extends WC_Payment_Gateway {
                 'desc_tip' => true,
             ),
             'client_secret' => array(
-                'title' => __('Client Secret', 'sicoob-woocommerce'),
+                'title' => __('Client Secret (Opcional)', 'sicoob-woocommerce'),
                 'type' => 'password',
-                'description' => __('Client Secret fornecido pelo Sicoob', 'sicoob-woocommerce'),
+                'description' => __('Client Secret fornecido pelo Sicoob. No sandbox, pode ser deixado em branco.', 'sicoob-woocommerce'),
                 'default' => '',
                 'desc_tip' => true,
             ),
