@@ -1,0 +1,1976 @@
+{
+  "info": {
+    "_postman_id": "d37d8877-5749-45e7-9d8e-d358ba3c288e",
+    "name": "Sicoob Sandbox",
+    "description": "Coleção base para testar o sandbox do Sicoob usando o token Bearer exibido no portal.\nInclui endpoints PIX mais comuns (BACEN v2-style).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "43347247"
+  },
+  "item": [
+    {
+      "name": "PIX",
+      "item": [
+        {
+          "name": "Pagamento",
+          "item": [
+            {
+              "name": "Pagamento do pix",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "client_id",
+                    "value": "{{client_id}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"chave\": \"as1d56564623f16asf54wq9d4s5a3d413\",\n  \"dataAgendamento\": \"2021-06-30\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}{{pagamento_pix}}/pagamentos",
+                  "host": ["{{base_url}}{{pagamento_pix}}"],
+                  "path": ["pagamentos"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Buscar pagamento pix",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "client_id",
+                    "value": "{{client_id}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "{{base_url}}{{pagamento_pix}}/pagamentos/{{id_pix}}",
+                  "host": ["{{base_url}}{{pagamento_pix}}"],
+                  "path": ["pagamentos", "{{id_pix}}"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Confirmar pagamento pix",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "client_id",
+                    "value": "{{client_id}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "{{base_url}}{{pagamento_pix}}/pagamentos/confirmacao",
+                  "host": ["{{base_url}}{{pagamento_pix}}"],
+                  "path": ["pagamentos", "confirmacao"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Configurar Webhook",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "client_id",
+                    "value": "{{client_id}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"webhookUrl\": \"https://pix.example.com/api/webhook/\"\r\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}{{pagamento_pix}}/pagamentos/webhook",
+                  "host": ["{{base_url}}{{pagamento_pix}}"],
+                  "path": ["pagamentos", "webhook"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Informação do Webhook",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "client_id",
+                    "value": "{{client_id}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "{{base_url}}{{pagamento_pix}}/pagamentos/webhook",
+                  "host": ["{{base_url}}{{pagamento_pix}}"],
+                  "path": ["pagamentos", "webhook"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Deletar Webhook",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "client_id",
+                    "value": "{{client_id}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "{{base_url}}{{pagamento_pix}}/pagamentos/webhook",
+                  "host": ["{{base_url}}{{pagamento_pix}}"],
+                  "path": ["pagamentos", "webhook"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Recebimento",
+          "item": [
+            {
+              "name": "Criar cobrança imediata",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Response status code is 200\", function () {\r",
+                      "    pm.expect(pm.response.code).to.eql(200);\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Response time is less than 200ms\", function () {\r",
+                      "    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Response Content-Type is 'text/html'\", function () {\r",
+                      "    pm.expect(pm.response.headers.get('Content-Type')).to.equal('text/html');\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Response contains the title 'Request Rejected'\", function () {\r",
+                      "    const responseBody = pm.response.text();\r",
+                      "    pm.expect(responseBody).to.include(\"<title>Request Rejected</title>\");\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Response includes a support ID in the body\", function () {\r",
+                      "    const responseBody = pm.response.text();\r",
+                      "    pm.expect(responseBody).to.include(\"support ID is:\");\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "client_id",
+                    "value": "{{client_id}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"calendario\": {\r\n        \"expiracao\": 3600\r\n    },\r\n    \"devedor\": {\r\n        \"cnpj\": \"12345678000195\",\r\n        \"nome\": \"Empresa de Serviços SA\"\r\n    },\r\n    \"valor\": {\r\n        \"original\": \"37.00\",\r\n        \"modalidadeAlteracao\": 1\r\n    },\r\n    \"chave\": \"7d9f0335-8dcc-4054-9bf9-0dbd61d36906\",\r\n    \"solicitacaoPagador\": \"Serviço realizado.\",\r\n    \"infoAdicionais\": [\r\n        {\r\n            \"nome\": \"Campo 1\",\r\n            \"valor\": \"Informação Adicional1 do PSP-Recebedor\"\r\n        },\r\n        {\r\n            \"nome\": \"Campo 2\",\r\n            \"valor\": \"Informação Adicional2 do PSP-Recebedor\"\r\n        }\r\n    ]\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}{{recebimento_pix}}/cob/{{txid}}",
+                  "host": ["{{base_url}}{{recebimento_pix}}"],
+                  "path": ["cob", "{{txid}}"]
+                }
+              },
+              "response": [
+                {
+                  "name": "Pedir devolução pix (resposta)",
+                  "originalRequest": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "client_id",
+                        "value": "{{client_id}}",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"calendario\": {\r\n        \"expiracao\": 3600\r\n    },\r\n    \"devedor\": {\r\n        \"cnpj\": \"12345678000195\",\r\n        \"nome\": \"Empresa de Serviços SA\"\r\n    },\r\n    \"valor\": {\r\n        \"original\": \"37.00\",\r\n        \"modalidadeAlteracao\": 1\r\n    },\r\n    \"chave\": \"7d9f0335-8dcc-4054-9bf9-0dbd61d36906\",\r\n    \"solicitacaoPagador\": \"Serviço realizado.\",\r\n    \"infoAdicionais\": [\r\n        {\r\n            \"nome\": \"Campo 1\",\r\n            \"valor\": \"Informação Adicional1 do PSP-Recebedor\"\r\n        },\r\n        {\r\n            \"nome\": \"Campo 2\",\r\n            \"valor\": \"Informação Adicional2 do PSP-Recebedor\"\r\n        }\r\n    ]\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}{{recebimento_pix}}/cob/{{txid}}",
+                      "host": ["{{base_url}}{{recebimento_pix}}"],
+                      "path": ["cob", "{{txid}}"]
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Connection",
+                      "value": "Keep-Alive"
+                    },
+                    {
+                      "key": "access-control-allow-origin",
+                      "value": "*"
+                    },
+                    {
+                      "key": "access-control-allow-headers",
+                      "value": "*"
+                    },
+                    {
+                      "key": "access-control-allow-credentials",
+                      "value": "true"
+                    },
+                    {
+                      "key": "access-control-expose-headers",
+                      "value": "*"
+                    },
+                    {
+                      "key": "content-type",
+                      "value": "application/json"
+                    },
+                    {
+                      "key": "date",
+                      "value": "Tue, 26 Aug 2025 00:53:11 GMT"
+                    },
+                    {
+                      "key": "Vary",
+                      "value": "Accept-Encoding"
+                    },
+                    {
+                      "key": "X-Global-Transaction-ID",
+                      "value": "407f742d68ad057701b080d3"
+                    },
+                    {
+                      "key": "Content-Encoding",
+                      "value": "gzip"
+                    },
+                    {
+                      "key": "Set-Cookie",
+                      "value": "TS016f8952=017a3a183bc75b601e6bb749715e2b6e56ed466f918d96407a13b83ec4a5e4568fd9da162c02262aba43a7d07defcd2ae30741ab78b935cae715024d3fbfd9249a2e129ff77b0cc3b21fd275cdbf6de330188a7f559cf9be5c2b301385ec651f0c50e180a4; Path=/; Domain=.sandbox.sicoob.com.br; Secure; HttpOnly;"
+                    },
+                    {
+                      "key": "Transfer-Encoding",
+                      "value": "chunked"
+                    },
+                    {
+                      "key": "Strict-Transport-Security",
+                      "value": "max-age=16070400; includeSubDomains"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"brcode\": \"non anim dolor\",\n    \"calendario\": {\n        \"criacao\": \"2017-07-08T00:00:00.0Z\",\n        \"expiracao\": 122776830\n    },\n    \"chave\": \"labore ex exercitation anim\",\n    \"devedor\": {\n        \"cnpj\": \"23980928724197\",\n        \"nome\": \"nulla qui et\"\n    },\n    \"infoAdicionais\": [\n        {\n            \"nome\": \"sit\",\n            \"valor\": \"officia occaecat\"\n        },\n        {\n            \"nome\": \"in reprehenderit non \",\n            \"valor\": \"laboris aute deserunt\"\n        },\n        {\n            \"nome\": \"magna anim\",\n            \"valor\": \"Lorem\"\n        },\n        {\n            \"nome\": \"magna labore laborum\",\n            \"valor\": \"proident eu cillum cons\"\n        }\n    ],\n    \"loc\": {\n        \"brcode\": \"ut culpa dolore\",\n        \"criacao\": \"1956-11-17T00:00:00.0Z\",\n        \"id\": 325627598136930300,\n        \"location\": \"https://KDXtbvi.wjE-I5TLm7JurO-60X2BC4\",\n        \"tipoCob\": \"cob\",\n        \"txid\": true\n    },\n    \"location\": \"http://oxrabZshpxOLIoVczctdyQulQ.epvlE3tkn.msYmovV,5\",\n    \"revisao\": 1534782878,\n    \"solicitacaoPagador\": \"anim consequ\",\n    \"status\": \"REMOVIDA_PELO_PSP\",\n    \"txid\": \"R4CnM7uSJycW8689wZXjOy46anUTgqYZvwP\",\n    \"valor\": {\n        \"modalidadeAlteracao\": 0,\n        \"original\": \"771.41\"\n    }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Revisar cobrança imediata",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Response status code is 200\", function () {\r",
+                      "    pm.expect(pm.response.code).to.eql(200);\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Response time is less than 200ms\", function () {\r",
+                      "    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Response Content-Type is 'text/html'\", function () {\r",
+                      "    pm.expect(pm.response.headers.get('Content-Type')).to.equal('text/html');\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Response contains the title 'Request Rejected'\", function () {\r",
+                      "    const responseBody = pm.response.text();\r",
+                      "    pm.expect(responseBody).to.include(\"<title>Request Rejected</title>\");\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Response includes a support ID in the body\", function () {\r",
+                      "    const responseBody = pm.response.text();\r",
+                      "    pm.expect(responseBody).to.include(\"support ID is:\");\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "client_id",
+                    "value": "{{client_id}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"loc\": {\r\n        \"id\": 7768\r\n    },\r\n    \"devedor\": {\r\n        \"cpf\": \"12345678909\",\r\n        \"nome\": \"Francisco da Silva\"\r\n    },\r\n    \"valor\": {\r\n        \"original\": \"123.45\"\r\n    },\r\n    \"solicitacaoPagador\": \"Cobrança dos serviços prestados.\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}{{recebimento_pix}}/cob/{{txid}}",
+                  "host": ["{{base_url}}{{recebimento_pix}}"],
+                  "path": ["cob", "{{txid}}"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Consultar cobrança imediata",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Response status code is 200\", function () {\r",
+                      "    pm.expect(pm.response.code).to.eql(200);\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Response time is less than 200ms\", function () {\r",
+                      "    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Response Content-Type is 'text/html'\", function () {\r",
+                      "    pm.expect(pm.response.headers.get('Content-Type')).to.equal('text/html');\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Response contains the title 'Request Rejected'\", function () {\r",
+                      "    const responseBody = pm.response.text();\r",
+                      "    pm.expect(responseBody).to.include(\"<title>Request Rejected</title>\");\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Response includes a support ID in the body\", function () {\r",
+                      "    const responseBody = pm.response.text();\r",
+                      "    pm.expect(responseBody).to.include(\"support ID is:\");\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "client_id",
+                    "value": "{{client_id}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}{{recebimento_pix}}/cob/{{txid}}",
+                  "host": ["{{base_url}}{{recebimento_pix}}"],
+                  "path": ["cob", "{{txid}}"],
+                  "query": [
+                    {
+                      "key": "revisao",
+                      "value": "1",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "Consultar cobrança imediata (resposta)",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "client_id",
+                        "value": "{{client_id}}",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}{{recebimento_pix}}/cob/{{txid}}",
+                      "host": ["{{base_url}}{{recebimento_pix}}"],
+                      "path": ["cob", "{{txid}}"],
+                      "query": [
+                        {
+                          "key": "revisao",
+                          "value": "1",
+                          "disabled": true
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Connection",
+                      "value": "Keep-Alive"
+                    },
+                    {
+                      "key": "access-control-allow-origin",
+                      "value": "*"
+                    },
+                    {
+                      "key": "access-control-allow-headers",
+                      "value": "*"
+                    },
+                    {
+                      "key": "access-control-allow-credentials",
+                      "value": "true"
+                    },
+                    {
+                      "key": "access-control-expose-headers",
+                      "value": "*"
+                    },
+                    {
+                      "key": "sl-violations",
+                      "value": "[{\"location\":[\"response\",\"body\",\"pix\",\"0\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'pagador'\"},{\"location\":[\"response\",\"body\",\"pix\",\"1\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'pagador'\"}]"
+                    },
+                    {
+                      "key": "content-type",
+                      "value": "application/json"
+                    },
+                    {
+                      "key": "date",
+                      "value": "Tue, 26 Aug 2025 01:00:27 GMT"
+                    },
+                    {
+                      "key": "Vary",
+                      "value": "Accept-Encoding"
+                    },
+                    {
+                      "key": "X-Global-Transaction-ID",
+                      "value": "407f742d68ad072b029df2c2"
+                    },
+                    {
+                      "key": "Content-Encoding",
+                      "value": "gzip"
+                    },
+                    {
+                      "key": "Transfer-Encoding",
+                      "value": "chunked"
+                    },
+                    {
+                      "key": "Strict-Transport-Security",
+                      "value": "max-age=16070400; includeSubDomains"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"brcode\": \"deserunt tempor consectetur nulla labore\",\n    \"calendario\": {\n        \"criacao\": \"1957-11-25T00:00:00.0Z\",\n        \"expiracao\": 1382524255\n    },\n    \"chave\": \"offic\",\n    \"devedor\": {\n        \"cpf\": \"09745733794\",\n        \"nome\": \"Lorem nostrud amet sint\"\n    },\n    \"infoAdicionais\": [\n        {\n            \"nome\": \"adipisicing \",\n            \"valor\": \"tempor ad\"\n        }\n    ],\n    \"loc\": {\n        \"brcode\": \"et\",\n        \"criacao\": \"1981-08-16T00:00:00.0Z\",\n        \"id\": 5006049283530969000,\n        \"location\": \"http://ituoOogkjFecNfewPshYDiIEO.sazwTw-fiI2omYf.qHAVqnbPm.4VBC6qd\",\n        \"tipoCob\": \"cobv\",\n        \"txid\": \"in ullamco dolore\"\n    },\n    \"location\": \"http://GD.yibXkcDOCfn,hl-glxVey3WRmoEs.DV2\",\n    \"pix\": [\n        {\n            \"endToEndId\": \"FUuhSLqwqiDpYBg0Xlz5qORuLZUQIctY\",\n            \"valor\": \"06.16\",\n            \"horario\": \"2008-07-20T00:00:00.0Z\",\n            \"txid\": \"IcyKQaCraLJLrMHkOJKPnNq9Wmgk0\",\n            \"chave\": \"qui ipsum magna Duis\",\n            \"devolucoes\": [\n                {\n                    \"id\": \"AaNeFFl4LBBmsNqsAbmx\",\n                    \"rtrId\": \"kF068yR7YF61FEJlhaybhWnzdYUEjEKu\",\n                    \"valor\": \"8.12\",\n                    \"horario\": {\n                        \"liquidacao\": \"1969-08-19T00:00:00.0Z\",\n                        \"solicitacao\": \"2004-12-13T00:00:00.0Z\"\n                    },\n                    \"status\": \"DEVOLVIDO\",\n                    \"motivo\": \"Excepteur \"\n                },\n                {\n                    \"id\": \"NXot\",\n                    \"rtrId\": \"YV4MXH9iRdItKwfHrZUo4Gys6O503hxk\",\n                    \"valor\": \"4.32\",\n                    \"horario\": {\n                        \"solicitacao\": \"1951-02-03T00:00:00.0Z\",\n                        \"liquidacao\": \"1976-12-24T00:00:00.0Z\"\n                    },\n                    \"status\": \"NAO_REALIZADO\",\n                    \"motivo\": \"in officia\"\n                }\n            ],\n            \"infoPagador\": \"culpa\"\n        },\n        {\n            \"endToEndId\": \"RRwFPJVEE5OsoCtxIV85zUh7ihs5erab\",\n            \"valor\": \"8027749638.99\",\n            \"horario\": \"1975-12-09T00:00:00.0Z\",\n            \"txid\": \"ZWvfPByTLK4qwPXGRpVwuAfIj4Zka4Or5\",\n            \"infoPagador\": \"ea aute deserunt\",\n            \"chave\": \"sunt consectetur Lorem\",\n            \"devolucoes\": [\n                {\n                    \"id\": \"jYoe8G9boa\",\n                    \"rtrId\": \"z38FlDFLbZQD9ZudaO5KEHxXxHToVKE7\",\n                    \"valor\": \"93.48\",\n                    \"horario\": {\n                        \"solicitacao\": \"1958-08-26T00:00:00.0Z\",\n                        \"liquidacao\": \"1958-03-30T00:00:00.0Z\"\n                    },\n                    \"status\": \"NAO_REALIZADO\",\n                    \"motivo\": \"eiusmod incididunt\"\n                },\n                {\n                    \"id\": \"3kC0P0u9o1hyFEg0yHGuHUuLLh0llD09Oc\",\n                    \"rtrId\": \"JT1N8WCNV4vzx6mtw85BkL5SudxT2bF2\",\n                    \"valor\": \"0.64\",\n                    \"horario\": {\n                        \"solicitacao\": \"2009-05-14T00:00:00.0Z\",\n                        \"liquidacao\": \"1982-06-15T00:00:00.0Z\"\n                    },\n                    \"status\": \"DEVOLVIDO\",\n                    \"motivo\": \"laborum nulla nostrud\"\n                },\n                {\n                    \"id\": \"xXbdtRdnuL57v1C2GWP\",\n                    \"rtrId\": \"NfzdnDtTtdRtzdjlrIEyBSNBerbaHk8X\",\n                    \"valor\": \"3910949050.48\",\n                    \"horario\": {\n                        \"liquidacao\": \"1976-02-13T00:00:00.0Z\",\n                        \"solicitacao\": \"1952-02-04T00:00:00.0Z\"\n                    },\n                    \"status\": \"NAO_REALIZADO\",\n                    \"motivo\": \"exercitation qui esse incididunt in\"\n                }\n            ]\n        }\n    ],\n    \"revisao\": -1357053380,\n    \"solicitacaoPagador\": \"lab\",\n    \"status\": \"CONCLUIDA\",\n    \"txid\": \"XlSPWxlyhPXoK9nmRBuiT1svT1e3nLt67W\",\n    \"valor\": {\n        \"modalidadeAlteracao\": 0,\n        \"original\": \"4533868.77\"\n    }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Gerar QR code para cobrança imediata",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [""],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "client_id",
+                    "value": "{{client_id}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}{{recebimento_pix}}/cob/{{txid}}/imagem?largura=360",
+                  "host": ["{{base_url}}{{recebimento_pix}}"],
+                  "path": ["cob", "{{txid}}", "imagem"],
+                  "query": [
+                    {
+                      "key": "revisao",
+                      "value": "1",
+                      "disabled": true
+                    },
+                    {
+                      "key": "largura",
+                      "value": "360"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Buscar lista de cobrança imediata",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [""],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "client_id",
+                    "value": "{{client_id}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}{{recebimento_pix}}/cob/{{txid}}/imagem?largura=360",
+                  "host": ["{{base_url}}{{recebimento_pix}}"],
+                  "path": ["cob", "{{txid}}", "imagem"],
+                  "query": [
+                    {
+                      "key": "revisao",
+                      "value": "1",
+                      "disabled": true
+                    },
+                    {
+                      "key": "largura",
+                      "value": "360"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "Buscar lista de cobrança imediata (resposta)",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "client_id",
+                        "value": "{{client_id}}",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}{{recebimento_pix}}/cob?inicio=2020-04-01T00:00:00Z&fim=2020-04-02T10:00:00Z",
+                      "host": ["{{base_url}}{{recebimento_pix}}"],
+                      "path": ["cob"],
+                      "query": [
+                        {
+                          "key": "inicio",
+                          "value": "2020-04-01T00:00:00Z"
+                        },
+                        {
+                          "key": "fim",
+                          "value": "2020-04-02T10:00:00Z"
+                        },
+                        {
+                          "key": "revisao",
+                          "value": "1",
+                          "disabled": true
+                        },
+                        {
+                          "key": "cpf",
+                          "value": null,
+                          "disabled": true
+                        },
+                        {
+                          "key": "cnpj",
+                          "value": null,
+                          "disabled": true
+                        },
+                        {
+                          "key": "locationPresente",
+                          "value": null,
+                          "disabled": true
+                        },
+                        {
+                          "key": "status",
+                          "value": null,
+                          "disabled": true
+                        },
+                        {
+                          "key": "paginacao.paginaAtual",
+                          "value": "0",
+                          "disabled": true
+                        },
+                        {
+                          "key": "paginacao.itensPorPagina",
+                          "value": "100",
+                          "disabled": true
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Connection",
+                      "value": "Keep-Alive"
+                    },
+                    {
+                      "key": "access-control-allow-origin",
+                      "value": "*"
+                    },
+                    {
+                      "key": "access-control-allow-headers",
+                      "value": "*"
+                    },
+                    {
+                      "key": "access-control-allow-credentials",
+                      "value": "true"
+                    },
+                    {
+                      "key": "access-control-expose-headers",
+                      "value": "*"
+                    },
+                    {
+                      "key": "sl-violations",
+                      "value": "[{\"location\":[\"response\",\"body\",\"cobs\",\"0\",\"pix\",\"0\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'pagador'\"},{\"location\":[\"response\",\"body\",\"cobs\",\"0\",\"pix\",\"1\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'pagador'\"},{\"location\":[\"response\",\"body\",\"cobs\",\"0\",\"pix\",\"2\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'pagador'\"},{\"location\":[\"response\",\"body\",\"cobs\",\"0\",\"pix\",\"3\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'pagador'\"},{\"location\":[\"response\",\"body\",\"cobs\",\"0\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'idCob'\"},{\"location\":[\"response\",\"body\",\"cobs\",\"1\",\"pix\",\"0\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'pagador'\"},{\"location\":[\"response\",\"body\",\"cobs\",\"1\",\"pix\",\"1\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'pagador'\"},{\"location\":[\"response\",\"body\",\"cobs\",\"1\",\"pix\",\"2\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'pagador'\"},{\"location\":[\"response\",\"body\",\"cobs\",\"1\",\"pix\",\"3\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'pagador'\"},{\"location\":[\"response\",\"body\",\"cobs\",\"1\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'idCob'\"},{\"location\":[\"response\",\"body\",\"cobs\",\"2\",\"pix\",\"0\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'pagador'\"},{\"location\":[\"response\",\"body\",\"cobs\",\"2\",\"pix\",\"1\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'pagador'\"},{\"location\":[\"response\",\"body\",\"cobs\",\"2\",\"pix\",\"2\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'pagador'\"},{\"location\":[\"response\",\"body\",\"cobs\",\"2\",\"pix\",\"3\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'pagador'\"},{\"location\":[\"response\",\"body\",\"cobs\",\"2\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'idCob'\"},{\"location\":[\"response\",\"body\",\"cobs\",\"3\",\"pix\",\"0\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'pagador'\"},{\"location\":[\"response\",\"body\",\"cobs\",\"3\",\"pix\",\"1\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'pagador'\"},{\"location\":[\"response\",\"body\",\"cobs\",\"3\",\"pix\",\"2\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'pagador'\"},{\"location\":[\"response\",\"body\",\"cobs\",\"3\",\"pix\",\"3\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'pagador'\"},{\"location\":[\"response\",\"body\",\"cobs\",\"3\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'idCob'\"},{\"location\":[\"response\",\"body\",\"cobs\",\"4\",\"pix\",\"0\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'pagador'\"},{\"location\":[\"response\",\"body\",\"cobs\",\"4\",\"pix\",\"1\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'pagador'\"},{\"location\":[\"response\",\"body\",\"cobs\",\"4\",\"pix\",\"2\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'pagador'\"},{\"location\":[\"response\",\"body\",\"cobs\",\"4\"],\"severity\":\"Error\",\"code\":\"required\",\"message\":\"must have required property 'idCob'\"}]"
+                    },
+                    {
+                      "key": "content-type",
+                      "value": "application/json"
+                    },
+                    {
+                      "key": "date",
+                      "value": "Tue, 26 Aug 2025 01:09:03 GMT"
+                    },
+                    {
+                      "key": "Vary",
+                      "value": "Accept-Encoding"
+                    },
+                    {
+                      "key": "X-Global-Transaction-ID",
+                      "value": "407f742d68ad092f01b095f3"
+                    },
+                    {
+                      "key": "Content-Encoding",
+                      "value": "gzip"
+                    },
+                    {
+                      "key": "Transfer-Encoding",
+                      "value": "chunked"
+                    },
+                    {
+                      "key": "Strict-Transport-Security",
+                      "value": "max-age=16070400; includeSubDomains"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"cobs\": [\n        {\n            \"status\": \"REMOVIDA_PELO_PSP\",\n            \"valor\": {\n                \"original\": \"728347.29\",\n                \"modalidadeAlteracao\": 0\n            },\n            \"chave\": \"amet\",\n            \"calendario\": {\n                \"expiracao\": 1356015713,\n                \"criacao\": \"1973-01-01T00:00:00.0Z\"\n            },\n            \"txid\": \"yEwRCDtYpNJElFkhHVWGgr6UKQiH\",\n            \"revisao\": -4559959,\n            \"devedor\": {\n                \"cpf\": \"20604194510\",\n                \"nome\": \"officia\"\n            },\n            \"solicitacaoPagador\": \"labore sit\",\n            \"location\": \"https://lAyMZKVIKjRIqVEri.wwbNqiwWx\",\n            \"brcode\": \"consequat tempor\",\n            \"loc\": {\n                \"id\": 843137908663840800,\n                \"tipoCob\": \"cobv\",\n                \"criacao\": \"1977-01-05T00:00:00.0Z\",\n                \"location\": \"https://pCKdBjiDLXOd.xoxGssxsUJyXAzN37G0SFsgH0,\",\n                \"brcode\": \"amet magna quis cupidatat Duis\",\n                \"txid\": -36768245\n            },\n            \"pix\": [\n                {\n                    \"endToEndId\": \"YYblQbdn2P3OVe17N4X284b2S1NgGA4G\",\n                    \"valor\": \"8.51\",\n                    \"horario\": \"1950-09-10T00:00:00.0Z\",\n                    \"chave\": \"pariatur incididunt\",\n                    \"infoPagador\": \"ea Ut\",\n                    \"txid\": \"I9SG0dJxsFTCYHWItUDECua6fy29PgHjd1M\",\n                    \"devolucoes\": [\n                        {\n                            \"id\": \"NN8aQ\",\n                            \"rtrId\": \"HuQ5f3SsDPgDzRZYt3hfEEWqCQbPrySD\",\n                            \"valor\": \"155606121.98\",\n                            \"horario\": {\n                                \"liquidacao\": \"2024-09-05T00:00:00.0Z\",\n                                \"solicitacao\": \"1999-01-11T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"ipsum reprehenderit\"\n                        },\n                        {\n                            \"id\": \"gM8W3uJiysSUV1anyHls39Rnydj\",\n                            \"rtrId\": \"sVxrwFqIooQAfsT6F3njUnb3cV1rvTjs\",\n                            \"valor\": \"871.33\",\n                            \"horario\": {\n                                \"solicitacao\": \"1969-02-08T00:00:00.0Z\",\n                                \"liquidacao\": \"1979-12-18T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"deserunt\"\n                        }\n                    ]\n                },\n                {\n                    \"endToEndId\": \"6CVuGXvNTGp4cS1bNmORlBgf5oZrsEHS\",\n                    \"valor\": \"4.36\",\n                    \"horario\": \"1969-03-09T00:00:00.0Z\",\n                    \"infoPagador\": \"magna aliqua deserunt velit dolore\",\n                    \"chave\": \"ad Excepteur labore\",\n                    \"txid\": \"8Dc9u7HmRRmO6Ef7F3GMtznxPF53EGWU\",\n                    \"devolucoes\": [\n                        {\n                            \"id\": \"ILWabvpCHh4jUCSqAMIRKPfR\",\n                            \"rtrId\": \"IiL1NNr2dky3WoNKUvHw9hCV6w4y5Nlc\",\n                            \"valor\": \"00389.64\",\n                            \"horario\": {\n                                \"solicitacao\": \"2021-10-24T00:00:00.0Z\",\n                                \"liquidacao\": \"1963-04-01T00:00:00.0Z\"\n                            },\n                            \"status\": \"NAO_REALIZADO\",\n                            \"motivo\": \"do qui Lorem enim exercitation\"\n                        },\n                        {\n                            \"id\": \"IhrT47vEoPHQoGT5rwu\",\n                            \"rtrId\": \"01z2Pk9fHo47AALCrIxnWlpFywvaXdny\",\n                            \"valor\": \"704.48\",\n                            \"horario\": {\n                                \"solicitacao\": \"1959-01-18T00:00:00.0Z\",\n                                \"liquidacao\": \"1963-03-24T00:00:00.0Z\"\n                            },\n                            \"status\": \"DEVOLVIDO\",\n                            \"motivo\": \"magna fugiat cupidatat enim non\"\n                        },\n                        {\n                            \"id\": \"gM7uE2PUhMavlBhzWkSxJSOQAkq9j8CL0EE\",\n                            \"rtrId\": \"DGtfDZqJCEopIhPfNW8ypPc2S2WsOxsF\",\n                            \"valor\": \"53.84\",\n                            \"horario\": {\n                                \"liquidacao\": \"1969-03-18T00:00:00.0Z\",\n                                \"solicitacao\": \"1986-11-28T00:00:00.0Z\"\n                            },\n                            \"status\": \"NAO_REALIZADO\",\n                            \"motivo\": \"sit\"\n                        }\n                    ]\n                },\n                {\n                    \"endToEndId\": \"vd8w84A3H8SCMfKwNR8OhR25etqEB2DS\",\n                    \"valor\": \"1865293384.00\",\n                    \"horario\": \"1971-12-18T00:00:00.0Z\",\n                    \"txid\": \"YhlUAHnShVojCxX9eq2yv6SHJtCUT4\",\n                    \"devolucoes\": [\n                        {\n                            \"id\": \"JAD3zNYJfW\",\n                            \"rtrId\": \"z18zHoYQAY3KS0xfCxeVYs5oHFGYeEhJ\",\n                            \"valor\": \"04692256.05\",\n                            \"horario\": {\n                                \"liquidacao\": \"1998-05-11T00:00:00.0Z\",\n                                \"solicitacao\": \"2021-12-07T00:00:00.0Z\"\n                            },\n                            \"status\": \"DEVOLVIDO\",\n                            \"motivo\": \"ex est\"\n                        },\n                        {\n                            \"id\": \"UqnW5cy4PpFAkjxodl1arum\",\n                            \"rtrId\": \"6lnhriFM6rB5ibDVZ4OsnJLVD5JNxnJg\",\n                            \"valor\": \"545.62\",\n                            \"horario\": {\n                                \"solicitacao\": \"1997-05-31T00:00:00.0Z\",\n                                \"liquidacao\": \"1954-11-11T00:00:00.0Z\"\n                            },\n                            \"status\": \"NAO_REALIZADO\",\n                            \"motivo\": \"ea adipisicing\"\n                        },\n                        {\n                            \"id\": \"9zua80xltm\",\n                            \"rtrId\": \"6Jg0PrStwzosjecfcCgzLy8HYaFzkDcA\",\n                            \"valor\": \"6252.98\",\n                            \"horario\": {\n                                \"solicitacao\": \"1947-10-18T00:00:00.0Z\",\n                                \"liquidacao\": \"2017-08-29T00:00:00.0Z\"\n                            },\n                            \"status\": \"NAO_REALIZADO\",\n                            \"motivo\": \"aute Duis aliqua\"\n                        },\n                        {\n                            \"id\": \"rffT\",\n                            \"rtrId\": \"bo7mnuLEzHujxG2gL7OCJ181RzicqjW0\",\n                            \"valor\": \"7.20\",\n                            \"horario\": {\n                                \"liquidacao\": \"1954-12-20T00:00:00.0Z\",\n                                \"solicitacao\": \"1967-07-28T00:00:00.0Z\"\n                            },\n                            \"status\": \"NAO_REALIZADO\",\n                            \"motivo\": \"eu\"\n                        },\n                        {\n                            \"id\": \"lG0JlF31elhgMJwJRKPKQPuVHJTOAFiDPm6\",\n                            \"rtrId\": \"SOdm8TzAoUzcuks3zAkRGKteAzeFlIJq\",\n                            \"valor\": \"9028114376.40\",\n                            \"horario\": {\n                                \"liquidacao\": \"1981-09-28T00:00:00.0Z\",\n                                \"solicitacao\": \"1954-06-02T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"occaecat nisi fugiat Ut\"\n                        }\n                    ],\n                    \"infoPagador\": \"reprehenderit incididunt est ullamco in\",\n                    \"chave\": \"in cupidatat\"\n                },\n                {\n                    \"endToEndId\": \"ITTzCcaLU3yrqJth6etu7BGszYmCfd8A\",\n                    \"valor\": \"2.36\",\n                    \"horario\": \"2014-01-29T00:00:00.0Z\",\n                    \"devolucoes\": [\n                        {\n                            \"id\": \"PuW\",\n                            \"rtrId\": \"hQj4FcvMmklznAuvBwFvuAeZdLuLRrWQ\",\n                            \"valor\": \"457308183.62\",\n                            \"horario\": {\n                                \"liquidacao\": \"1974-02-17T00:00:00.0Z\",\n                                \"solicitacao\": \"2019-12-26T00:00:00.0Z\"\n                            },\n                            \"status\": \"NAO_REALIZADO\",\n                            \"motivo\": \"Excepteur\"\n                        },\n                        {\n                            \"id\": \"iSgn8qfs4eqfQK3NNZSD\",\n                            \"rtrId\": \"qhMU9AFFaQN2jkpmbEYtqef3aSs0Qa1L\",\n                            \"valor\": \"12237384.72\",\n                            \"horario\": {\n                                \"liquidacao\": \"1981-06-20T00:00:00.0Z\",\n                                \"solicitacao\": \"1956-10-21T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"commodo ut voluptate amet\"\n                        },\n                        {\n                            \"id\": \"tJi4Ip6DiGpCLX\",\n                            \"rtrId\": \"fey3l7daFCBd4t0srOOEoLcQ9J1Xq8Uq\",\n                            \"valor\": \"003451.85\",\n                            \"horario\": {\n                                \"liquidacao\": \"1978-03-13T00:00:00.0Z\",\n                                \"solicitacao\": \"2005-07-30T00:00:00.0Z\"\n                            },\n                            \"status\": \"NAO_REALIZADO\",\n                            \"motivo\": \"reprehenderit veniam amet\"\n                        },\n                        {\n                            \"id\": \"tm\",\n                            \"rtrId\": \"N2wp4cNxPAj0UfMIRN5ERREec42DICbf\",\n                            \"valor\": \"5561.70\",\n                            \"horario\": {\n                                \"liquidacao\": \"1967-10-16T00:00:00.0Z\",\n                                \"solicitacao\": \"1972-07-01T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"nulla veniam magna aliquip eu\"\n                        }\n                    ],\n                    \"chave\": \"et veniam\",\n                    \"txid\": \"BzJS46nFYyHfkI8WNIQQhAdL0xIc1z\",\n                    \"infoPagador\": \"ex in cupidatat fugiat dolore\"\n                }\n            ],\n            \"infoAdicionais\": [\n                {\n                    \"nome\": \"veniam nostrud\",\n                    \"valor\": \"ullamco fugiat non culpa\"\n                },\n                {\n                    \"nome\": \"reprehenderit nostrud\",\n                    \"valor\": \"elit\"\n                },\n                {\n                    \"nome\": \"incidi\",\n                    \"valor\": \"do minim Ut\"\n                },\n                {\n                    \"nome\": \"adipisic\",\n                    \"valor\": \"magna ullamco exercita\"\n                }\n            ]\n        },\n        {\n            \"status\": \"REMOVIDA_PELO_USUARIO_RECEBEDOR\",\n            \"valor\": {\n                \"original\": \"18.99\",\n                \"modalidadeAlteracao\": 0\n            },\n            \"chave\": \"ex consequat\",\n            \"calendario\": {\n                \"expiracao\": 293001307,\n                \"criacao\": \"1990-04-06T00:00:00.0Z\"\n            },\n            \"txid\": \"JvvBBEI25TZmtNsPGdqspoZAXKicd\",\n            \"revisao\": -669201195,\n            \"solicitacaoPagador\": \"laboris dol\",\n            \"loc\": {\n                \"id\": -4030763772739920000,\n                \"tipoCob\": \"cob\",\n                \"criacao\": \"1982-02-01T00:00:00.0Z\",\n                \"location\": \"https://wtOzME.bvlSSsNcJ9qwwALD7TuPN9sB8f5tBBRgaTgBY0HxcvnWLI4byriD-gjOnd\",\n                \"brcode\": \"minim amet\",\n                \"txid\": false\n            },\n            \"location\": \"http://TBeHIWUPTFOqoA.ycktxmMcST8xH8LCTgYFBkXvi8Ztsqsd.QOPjUneWPZQ3Ilh2AE2ufy\",\n            \"pix\": [\n                {\n                    \"endToEndId\": \"gxAc2yZcxIlAoT4TxkFr6wVGmnJwf7K5\",\n                    \"valor\": \"13939.52\",\n                    \"horario\": \"1950-11-11T00:00:00.0Z\",\n                    \"chave\": \"laboris sint\",\n                    \"devolucoes\": [\n                        {\n                            \"id\": \"k4thiUh\",\n                            \"rtrId\": \"MtslUiGFRJYfb6WM54f5mrok6CtM8FCF\",\n                            \"valor\": \"18986380.16\",\n                            \"horario\": {\n                                \"solicitacao\": \"1979-01-06T00:00:00.0Z\",\n                                \"liquidacao\": \"1973-01-10T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"fugiat consectetur sunt occaecat\"\n                        },\n                        {\n                            \"id\": \"RYLmww3TKYDHn3znjgC\",\n                            \"rtrId\": \"lXrKTshyD3YRxDPpJzrNF2eW2Xa04ZC3\",\n                            \"valor\": \"220.79\",\n                            \"horario\": {\n                                \"solicitacao\": \"1948-12-27T00:00:00.0Z\",\n                                \"liquidacao\": \"1996-07-18T00:00:00.0Z\"\n                            },\n                            \"status\": \"NAO_REALIZADO\",\n                            \"motivo\": \"qui eiusmod sed proident\"\n                        },\n                        {\n                            \"id\": \"jSM6PcVF5w\",\n                            \"rtrId\": \"bHpZ1HcwwvNopmdx1jfrOwqBYMbOmotw\",\n                            \"valor\": \"05410398.89\",\n                            \"horario\": {\n                                \"liquidacao\": \"2003-02-07T00:00:00.0Z\",\n                                \"solicitacao\": \"1998-08-22T00:00:00.0Z\"\n                            },\n                            \"status\": \"NAO_REALIZADO\",\n                            \"motivo\": \"esse anim exercitation ex deserunt\"\n                        }\n                    ],\n                    \"infoPagador\": \"mollit aliquip\",\n                    \"txid\": \"DxcVRQ8FppXjn2gzp12UJMFCAmj\"\n                },\n                {\n                    \"endToEndId\": \"WXf9xCThCIUsyF86bTiSPBKJ69SBQb2e\",\n                    \"valor\": \"9870.63\",\n                    \"horario\": \"1998-02-13T00:00:00.0Z\",\n                    \"infoPagador\": \"aliquip eu\",\n                    \"txid\": \"JpXaTZIfShjU69LBHj4N7Wskzxgwbxk6r8J\",\n                    \"devolucoes\": [\n                        {\n                            \"id\": \"r7uz3c26c1EPpMzlMQOd\",\n                            \"rtrId\": \"nyZO6fD0p7BLedJNbPjzUrPAsfrQBrq5\",\n                            \"valor\": \"870587.00\",\n                            \"horario\": {\n                                \"liquidacao\": \"1955-11-30T00:00:00.0Z\",\n                                \"solicitacao\": \"1991-08-04T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"minim exercitation\"\n                        },\n                        {\n                            \"id\": \"AOl\",\n                            \"rtrId\": \"Kftjsxqkq9f2XLIVs0ZL4IEhFtp1cKIN\",\n                            \"valor\": \"439.59\",\n                            \"horario\": {\n                                \"liquidacao\": \"1980-08-22T00:00:00.0Z\",\n                                \"solicitacao\": \"2018-07-25T00:00:00.0Z\"\n                            },\n                            \"status\": \"DEVOLVIDO\",\n                            \"motivo\": \"quis aute irure\"\n                        },\n                        {\n                            \"id\": \"bwBIAkB3WEnqQ\",\n                            \"rtrId\": \"Tss5etsKyRzjgwTxaeWPKDj0JQCzFjGY\",\n                            \"valor\": \"0.96\",\n                            \"horario\": {\n                                \"liquidacao\": \"1957-09-20T00:00:00.0Z\",\n                                \"solicitacao\": \"2000-03-30T00:00:00.0Z\"\n                            },\n                            \"status\": \"NAO_REALIZADO\",\n                            \"motivo\": \"culpa occaecat non esse nisi\"\n                        },\n                        {\n                            \"id\": \"whVw23LsVHbfC2smrnTcZzH1lbsJYfM0dt\",\n                            \"rtrId\": \"OdNbt08CqB6NYbzhVzE1gXpI07puF2Ux\",\n                            \"valor\": \"515.73\",\n                            \"horario\": {\n                                \"solicitacao\": \"1958-09-26T00:00:00.0Z\",\n                                \"liquidacao\": \"1980-01-08T00:00:00.0Z\"\n                            },\n                            \"status\": \"NAO_REALIZADO\",\n                            \"motivo\": \"elit conse\"\n                        }\n                    ],\n                    \"chave\": \"aute sint in\"\n                },\n                {\n                    \"endToEndId\": \"3gFfphGUSJlYPfqaGKiHx9rgxspByk9U\",\n                    \"valor\": \"1962.90\",\n                    \"horario\": \"2021-08-05T00:00:00.0Z\",\n                    \"chave\": \"id fugiat dolore quis Excepteur\",\n                    \"infoPagador\": \"enim l\",\n                    \"devolucoes\": [\n                        {\n                            \"id\": \"X7Ki759jaESRdDtZ0ikkD93obU3ElPP9e\",\n                            \"rtrId\": \"Dqkdu2mJ6hgRertAwFeCxPv7NUUmF9RM\",\n                            \"valor\": \"3681.35\",\n                            \"horario\": {\n                                \"solicitacao\": \"1977-03-01T00:00:00.0Z\",\n                                \"liquidacao\": \"2016-11-19T00:00:00.0Z\"\n                            },\n                            \"status\": \"NAO_REALIZADO\",\n                            \"motivo\": \"pariatur\"\n                        }\n                    ],\n                    \"txid\": \"xaeqqWV3huKfdxfOH8l6RSIaOKM\"\n                },\n                {\n                    \"endToEndId\": \"eoNfZ6JiHWIUKPPlRhbfLiNfpBQVMbP7\",\n                    \"valor\": \"2064139.82\",\n                    \"horario\": \"1997-02-09T00:00:00.0Z\",\n                    \"chave\": \"quis\",\n                    \"infoPagador\": \"Lorem veniam id cupidatat\",\n                    \"txid\": \"IPFVvCtvAUBX94jDUiyDwesr7Ukxgc0E\",\n                    \"devolucoes\": [\n                        {\n                            \"id\": \"CRrb4ypHQ4yeKctWlDile\",\n                            \"rtrId\": \"utAnefGCRkN4r3I0TNPiKb8WeuMALemb\",\n                            \"valor\": \"5.89\",\n                            \"horario\": {\n                                \"liquidacao\": \"2006-07-16T00:00:00.0Z\",\n                                \"solicitacao\": \"1978-06-09T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"sit ut sunt\"\n                        },\n                        {\n                            \"id\": \"mKQdr\",\n                            \"rtrId\": \"RhVKIWIUer3Mp2YwfSY67WIrXW6GV6ie\",\n                            \"valor\": \"09.45\",\n                            \"horario\": {\n                                \"liquidacao\": \"2013-05-10T00:00:00.0Z\",\n                                \"solicitacao\": \"2013-05-24T00:00:00.0Z\"\n                            },\n                            \"status\": \"NAO_REALIZADO\",\n                            \"motivo\": \"occaecat\"\n                        },\n                        {\n                            \"id\": \"NHrJD8XCBNrrIH3rJ6cGgybnMDsgS\",\n                            \"rtrId\": \"6QtMrCXdRnVxIBX451W0MZcZtJai1jw6\",\n                            \"valor\": \"9700631089.01\",\n                            \"horario\": {\n                                \"liquidacao\": \"2004-02-11T00:00:00.0Z\",\n                                \"solicitacao\": \"2011-12-09T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"velit cillum sed\"\n                        },\n                        {\n                            \"id\": \"6\",\n                            \"rtrId\": \"KLBrNfsyEN0b1d8AjG118FgrDSFZEfnh\",\n                            \"valor\": \"910150071.06\",\n                            \"horario\": {\n                                \"liquidacao\": \"1978-05-10T00:00:00.0Z\",\n                                \"solicitacao\": \"1948-11-13T00:00:00.0Z\"\n                            },\n                            \"status\": \"NAO_REALIZADO\",\n                            \"motivo\": \"cupidatat aliqua mollit adipisicing culpa\"\n                        }\n                    ]\n                }\n            ],\n            \"devedor\": {\n                \"cpf\": \"30246568034\",\n                \"nome\": \"consectetur\"\n            },\n            \"brcode\": \"officia ut aliquip\",\n            \"infoAdicionais\": [\n                {\n                    \"nome\": \"Duis reprehenderit cupidatat\",\n                    \"valor\": \"consequat sit\"\n                },\n                {\n                    \"nome\": \"non consequat in ea\",\n                    \"valor\": \"laborum\"\n                },\n                {\n                    \"nome\": \"\",\n                    \"valor\": \"eu veniam culpa sed\"\n                },\n                {\n                    \"nome\": \"est non\",\n                    \"valor\": \"cillum\"\n                }\n            ]\n        },\n        {\n            \"status\": \"CONCLUIDA\",\n            \"valor\": {\n                \"original\": \"46.45\",\n                \"modalidadeAlteracao\": 0\n            },\n            \"chave\": \"irure\",\n            \"calendario\": {\n                \"expiracao\": 811465707,\n                \"criacao\": \"1969-03-11T00:00:00.0Z\"\n            },\n            \"txid\": \"PwOW2ebVH4UoNulmrkatMfkizrxJjFvP\",\n            \"revisao\": 1411061313,\n            \"brcode\": \"Lorem officia\",\n            \"location\": \"https://aiCedtyBxpipwUSk.gtHLOA+YBuubft0ZHSCHs1SKxx6wBE3sJqv\",\n            \"pix\": [\n                {\n                    \"endToEndId\": \"vCyUSmAjBDk4qOKrnhInd9dL1haxfM9z\",\n                    \"valor\": \"1.81\",\n                    \"horario\": \"1973-02-11T00:00:00.0Z\",\n                    \"chave\": \"sit amet sint do\",\n                    \"devolucoes\": [\n                        {\n                            \"id\": \"buTfX9hx\",\n                            \"rtrId\": \"5UjQyRZravTrvDwirEZIsmtDuHh8Z2JO\",\n                            \"valor\": \"7347982740.29\",\n                            \"horario\": {\n                                \"solicitacao\": \"2024-12-06T00:00:00.0Z\",\n                                \"liquidacao\": \"1977-11-13T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"aliquip et\"\n                        },\n                        {\n                            \"id\": \"Kj0kyrMp8vwxeA5riUyU5\",\n                            \"rtrId\": \"JQwlRClk7MMhH7q605k7tQTz6NIk6I2j\",\n                            \"valor\": \"62605.88\",\n                            \"horario\": {\n                                \"liquidacao\": \"1986-07-05T00:00:00.0Z\",\n                                \"solicitacao\": \"2020-01-12T00:00:00.0Z\"\n                            },\n                            \"status\": \"NAO_REALIZADO\",\n                            \"motivo\": \"ad consectetur sunt culpa mollit\"\n                        },\n                        {\n                            \"id\": \"nnczVOWfuCxNWFIIg3tU1f\",\n                            \"rtrId\": \"ZiwgOtbakwJy266iXUmg97DbcORYppAk\",\n                            \"valor\": \"301408717.95\",\n                            \"horario\": {\n                                \"liquidacao\": \"1971-05-16T00:00:00.0Z\",\n                                \"solicitacao\": \"1992-05-08T00:00:00.0Z\"\n                            },\n                            \"status\": \"NAO_REALIZADO\",\n                            \"motivo\": \"ea\"\n                        },\n                        {\n                            \"id\": \"0NrA\",\n                            \"rtrId\": \"sd7ZUYLBhTiKx9KYL4LUH26YC3iTPsEc\",\n                            \"valor\": \"2005543600.14\",\n                            \"horario\": {\n                                \"solicitacao\": \"2006-06-22T00:00:00.0Z\",\n                                \"liquidacao\": \"1946-08-08T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"ut voluptate cillum\"\n                        },\n                        {\n                            \"id\": \"i2M\",\n                            \"rtrId\": \"3rFsHnYpj9a1sDXjjDOnYLBkIC8YgwSD\",\n                            \"valor\": \"2900.46\",\n                            \"horario\": {\n                                \"solicitacao\": \"2011-09-14T00:00:00.0Z\",\n                                \"liquidacao\": \"1998-05-27T00:00:00.0Z\"\n                            },\n                            \"status\": \"NAO_REALIZADO\",\n                            \"motivo\": \"et Duis Lorem nulla\"\n                        }\n                    ],\n                    \"txid\": \"U1KFnVbH21hzrS9Fp8a7KqX9JKo8bipQjsf\",\n                    \"infoPagador\": \"Ut quis\"\n                },\n                {\n                    \"endToEndId\": \"HvYrsPgyP2fLI8dgqZdNfUd9vc2dk4NN\",\n                    \"valor\": \"2505253.55\",\n                    \"horario\": \"1956-06-17T00:00:00.0Z\",\n                    \"txid\": \"DkOPV9U7u2X5FTRblo7zysgIPGU2\",\n                    \"devolucoes\": [\n                        {\n                            \"id\": \"TVt5\",\n                            \"rtrId\": \"cG2Llmsl9WpI8JOb1SIJovjZLRIqg7FX\",\n                            \"valor\": \"548020609.51\",\n                            \"horario\": {\n                                \"solicitacao\": \"1974-05-17T00:00:00.0Z\",\n                                \"liquidacao\": \"1978-08-04T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"laboris consectetur sed velit ut\"\n                        },\n                        {\n                            \"id\": \"l8kUMcsFxWRF4TS6HypibsAPCFJqw\",\n                            \"rtrId\": \"uURUvpdddF4PhnXDxZetshb8fmlYofxZ\",\n                            \"valor\": \"848142.29\",\n                            \"horario\": {\n                                \"solicitacao\": \"2008-10-14T00:00:00.0Z\",\n                                \"liquidacao\": \"1963-07-31T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"in anim aliqua\"\n                        },\n                        {\n                            \"id\": \"i33cGxkYeok\",\n                            \"rtrId\": \"Ts6Tsn2hCFJCoWVTqDNhCSZsn1qgE3LX\",\n                            \"valor\": \"5.79\",\n                            \"horario\": {\n                                \"liquidacao\": \"1982-11-25T00:00:00.0Z\",\n                                \"solicitacao\": \"2004-09-03T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"aute est sunt\"\n                        },\n                        {\n                            \"id\": \"fymil0rwqiQizC935PYVM4NIYkkMcR\",\n                            \"rtrId\": \"gyxIFmiBgeTWVFwE9rjQb6pqI4dEKIFE\",\n                            \"valor\": \"91968.60\",\n                            \"horario\": {\n                                \"solicitacao\": \"1999-01-12T00:00:00.0Z\",\n                                \"liquidacao\": \"2018-08-11T00:00:00.0Z\"\n                            },\n                            \"status\": \"DEVOLVIDO\",\n                            \"motivo\": \"aute nisi eiusmod\"\n                        },\n                        {\n                            \"id\": \"lxfK8nnAd8bdxyClSvbhFdX3IBlpC5K\",\n                            \"rtrId\": \"nCq8erLzAIKHqwTwsQEOtBEkz51n6I6B\",\n                            \"valor\": \"2129514.62\",\n                            \"horario\": {\n                                \"solicitacao\": \"1997-09-21T00:00:00.0Z\",\n                                \"liquidacao\": \"1999-09-20T00:00:00.0Z\"\n                            },\n                            \"status\": \"DEVOLVIDO\",\n                            \"motivo\": \"dolore irure ex do exercitation\"\n                        }\n                    ],\n                    \"infoPagador\": \"nostrud\",\n                    \"chave\": \"pariatur consectetur laborum\"\n                },\n                {\n                    \"endToEndId\": \"Ap2972iV21eclxDOmmY336WsYYbTrDAc\",\n                    \"valor\": \"4.24\",\n                    \"horario\": \"2011-05-22T00:00:00.0Z\",\n                    \"devolucoes\": [\n                        {\n                            \"id\": \"V\",\n                            \"rtrId\": \"AtOtbls8K2ZRudRHGztqLU0JqVrt9pnh\",\n                            \"valor\": \"1.13\",\n                            \"horario\": {\n                                \"liquidacao\": \"2015-05-06T00:00:00.0Z\",\n                                \"solicitacao\": \"1968-09-07T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"proident\"\n                        }\n                    ],\n                    \"txid\": \"1EPwYsocBOK6NRxfZxBlJB5zXkIt8mTv7\",\n                    \"infoPagador\": \"culpa sed dolor laboris minim\",\n                    \"chave\": \"dolo\"\n                },\n                {\n                    \"endToEndId\": \"m5hu8rKsKLTDIibBIUH9V8BHzdiha1AX\",\n                    \"valor\": \"600059.11\",\n                    \"horario\": \"1983-11-11T00:00:00.0Z\",\n                    \"txid\": \"ZNuTctn5Wshk9er2HTZI3IXzjvN57Tdb1i\",\n                    \"devolucoes\": [\n                        {\n                            \"id\": \"jnFximaeWc0kApQYG5SZ7PtX\",\n                            \"rtrId\": \"oA55F1CUIehKwYVIC4mHZcWDrdTP587c\",\n                            \"valor\": \"443530570.95\",\n                            \"horario\": {\n                                \"liquidacao\": \"1946-05-20T00:00:00.0Z\",\n                                \"solicitacao\": \"2018-12-22T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"aute veniam ad\"\n                        },\n                        {\n                            \"id\": \"mvl8lirm6TzUN7yHV3PgK\",\n                            \"rtrId\": \"Yb4k24iVlTidxM2ChCjdbyRmG5GH62yL\",\n                            \"valor\": \"2089249582.23\",\n                            \"horario\": {\n                                \"liquidacao\": \"1957-08-10T00:00:00.0Z\",\n                                \"solicitacao\": \"1965-01-05T00:00:00.0Z\"\n                            },\n                            \"status\": \"DEVOLVIDO\",\n                            \"motivo\": \"ad laboris est in pariatur\"\n                        },\n                        {\n                            \"id\": \"Ktxdp9\",\n                            \"rtrId\": \"9ybWyTbhbwFe0Gmfme7UiGa2x9lHCOvg\",\n                            \"valor\": \"08813382.05\",\n                            \"horario\": {\n                                \"liquidacao\": \"2019-07-26T00:00:00.0Z\",\n                                \"solicitacao\": \"1976-10-18T00:00:00.0Z\"\n                            },\n                            \"status\": \"DEVOLVIDO\",\n                            \"motivo\": \"Lorem laborum in dolore\"\n                        }\n                    ],\n                    \"chave\": \"cillum\",\n                    \"infoPagador\": \"eu sint Du\"\n                }\n            ],\n            \"devedor\": {\n                \"cnpj\": \"46141868907393\",\n                \"nome\": \"et ipsum esse\"\n            },\n            \"infoAdicionais\": [\n                {\n                    \"nome\": \"in eiusmod consequat proident qui\",\n                    \"valor\": \"sed et\"\n                },\n                {\n                    \"nome\": \"L\",\n                    \"valor\": \"ipsum f\"\n                }\n            ],\n            \"solicitacaoPagador\": \"quis\",\n            \"loc\": {\n                \"id\": -6044785752510046000,\n                \"tipoCob\": \"cob\",\n                \"criacao\": \"1948-03-09T00:00:00.0Z\",\n                \"location\": \"http://yIukCdiDqoSeROTACDtkANyATXAjrFXtF.skcDrxH5c0HXukY.pn.luE1HfRcF7rQeFX0E\",\n                \"brcode\": \"adipisicing proident exercitation nulla ipsum\",\n                \"txid\": 60449420.37036893\n            }\n        },\n        {\n            \"status\": \"REMOVIDA_PELO_PSP\",\n            \"valor\": {\n                \"original\": \"43314.11\",\n                \"modalidadeAlteracao\": 0\n            },\n            \"chave\": \"sunt\",\n            \"calendario\": {\n                \"expiracao\": 1812971898,\n                \"criacao\": \"1970-07-07T00:00:00.0Z\"\n            },\n            \"txid\": \"1JvK9OqwNtr1waY7AJW7erG0XFCgb6V\",\n            \"revisao\": -1729633200,\n            \"devedor\": {\n                \"cpf\": \"77789196994\",\n                \"nome\": \"in Excepteur dolore sunt esse\"\n            },\n            \"brcode\": \"dolore\",\n            \"loc\": {\n                \"id\": -1792345505428344800,\n                \"tipoCob\": \"cob\",\n                \"criacao\": \"1952-09-23T00:00:00.0Z\",\n                \"location\": \"http://qZGQmxFsuYtXRduJgE.avXqcAi1,kNZU9XZiYflY,3rTiv8F36R4.ceIvO3pIYYiD+\",\n                \"brcode\": \"ipsum\",\n                \"txid\": false\n            },\n            \"pix\": [\n                {\n                    \"endToEndId\": \"qDKpSlmVJYhpOTO4Tb7VgGi7rRtNHMJi\",\n                    \"valor\": \"57746.51\",\n                    \"horario\": \"1989-04-23T00:00:00.0Z\",\n                    \"chave\": \"consectetur sit proident\",\n                    \"devolucoes\": [\n                        {\n                            \"id\": \"iQ8e8p8CmxDXE9yz2GDJ7jh\",\n                            \"rtrId\": \"SaO9qBvsYEsmfymr3ldLbwkuNq0WTfsN\",\n                            \"valor\": \"0424.03\",\n                            \"horario\": {\n                                \"solicitacao\": \"1977-01-26T00:00:00.0Z\",\n                                \"liquidacao\": \"1993-04-02T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"do aliquip\"\n                        },\n                        {\n                            \"id\": \"wtQRvb8vk1HWygpvhFW9x0OL8smDx\",\n                            \"rtrId\": \"lQtosnb5wQ9DmEmeyENmr9QPsjWqtGet\",\n                            \"valor\": \"468160.02\",\n                            \"horario\": {\n                                \"solicitacao\": \"1952-10-05T00:00:00.0Z\",\n                                \"liquidacao\": \"1950-04-07T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"cillum Duis veniam\"\n                        },\n                        {\n                            \"id\": \"gLwaBXJk6wYF52Lu1\",\n                            \"rtrId\": \"bnWIfwD8AdKYhSgIgCMCjBJRyfmO7KT0\",\n                            \"valor\": \"4711747.78\",\n                            \"horario\": {\n                                \"liquidacao\": \"1964-12-31T00:00:00.0Z\",\n                                \"solicitacao\": \"1961-06-10T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"aliquip\"\n                        }\n                    ],\n                    \"txid\": \"TI4XSXP7wuGC1DEsYzaH3HNhJteh\",\n                    \"infoPagador\": \"aute tempor quis consectetur\"\n                },\n                {\n                    \"endToEndId\": \"WEQKaOCpRpV4bnf5dLQMsMN9EGhQ6s5Q\",\n                    \"valor\": \"0594.75\",\n                    \"horario\": \"1997-04-24T00:00:00.0Z\",\n                    \"txid\": \"mXc3bF6CP3MADc9ExdCQ6k5AzNP\",\n                    \"infoPagador\": \"dolore Excepteur aute sed\",\n                    \"chave\": \"anim dolore labore con\",\n                    \"devolucoes\": [\n                        {\n                            \"id\": \"4IrxWWUlwtTeN38HNGlgLIdC\",\n                            \"rtrId\": \"zMKfFSwjBg0PfazrdLkZEE1HAHtrbp5o\",\n                            \"valor\": \"08279742.89\",\n                            \"horario\": {\n                                \"solicitacao\": \"1945-10-06T00:00:00.0Z\",\n                                \"liquidacao\": \"2007-08-11T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"ullamco proident\"\n                        },\n                        {\n                            \"id\": \"Tv7P\",\n                            \"rtrId\": \"UEuarkGXzzlpXqEceo7lRYF6qtjNDyjq\",\n                            \"valor\": \"3533097.53\",\n                            \"horario\": {\n                                \"liquidacao\": \"1992-10-19T00:00:00.0Z\",\n                                \"solicitacao\": \"2014-02-22T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"laboris ut amet et\"\n                        }\n                    ]\n                },\n                {\n                    \"endToEndId\": \"BIxziD9JvMpG9hhONmJFVo1KYGrOx73j\",\n                    \"valor\": \"2774798349.33\",\n                    \"horario\": \"1956-10-09T00:00:00.0Z\",\n                    \"chave\": \"culpa deserunt voluptate commo\",\n                    \"infoPagador\": \"l\",\n                    \"devolucoes\": [\n                        {\n                            \"id\": \"8qXEN0Y3O1Kae0TtJvVwBA\",\n                            \"rtrId\": \"xsByEoWscmnFJ4cW5uLCRqtqybSEQDzi\",\n                            \"valor\": \"234.11\",\n                            \"horario\": {\n                                \"liquidacao\": \"2012-01-16T00:00:00.0Z\",\n                                \"solicitacao\": \"1976-11-04T00:00:00.0Z\"\n                            },\n                            \"status\": \"DEVOLVIDO\",\n                            \"motivo\": \"deserunt\"\n                        },\n                        {\n                            \"id\": \"zjLqJIDmYp7xkQZh1Vu4nzWCQAf2ueU\",\n                            \"rtrId\": \"0hzHx58KRYmoIyqDUz9tt5OpX69vlQco\",\n                            \"valor\": \"8944342.17\",\n                            \"horario\": {\n                                \"solicitacao\": \"2001-07-26T00:00:00.0Z\",\n                                \"liquidacao\": \"2011-05-18T00:00:00.0Z\"\n                            },\n                            \"status\": \"NAO_REALIZADO\",\n                            \"motivo\": \"aliqua in\"\n                        },\n                        {\n                            \"id\": \"YszDLS8b\",\n                            \"rtrId\": \"wlIhJFnYvBGfpqt9nB411hYwGTRgBZZl\",\n                            \"valor\": \"6747.26\",\n                            \"horario\": {\n                                \"liquidacao\": \"1980-12-01T00:00:00.0Z\",\n                                \"solicitacao\": \"1956-12-03T00:00:00.0Z\"\n                            },\n                            \"status\": \"DEVOLVIDO\",\n                            \"motivo\": \"dolor ut in exercitation\"\n                        },\n                        {\n                            \"id\": \"6v\",\n                            \"rtrId\": \"BuYkFKvwvITOzTZMcB9Afx2OOAG1UHlx\",\n                            \"valor\": \"2590.49\",\n                            \"horario\": {\n                                \"liquidacao\": \"2001-01-27T00:00:00.0Z\",\n                                \"solicitacao\": \"1998-12-31T00:00:00.0Z\"\n                            },\n                            \"status\": \"NAO_REALIZADO\",\n                            \"motivo\": \"cupidatat anim non\"\n                        },\n                        {\n                            \"id\": \"dGJs3e\",\n                            \"rtrId\": \"AkAvti7WbXK0YvW0zono3YkYCpq3eQL6\",\n                            \"valor\": \"8960.04\",\n                            \"horario\": {\n                                \"liquidacao\": \"1952-06-21T00:00:00.0Z\",\n                                \"solicitacao\": \"2023-09-29T00:00:00.0Z\"\n                            },\n                            \"status\": \"DEVOLVIDO\",\n                            \"motivo\": \"laboris minim qui enim\"\n                        }\n                    ],\n                    \"txid\": \"An0mc4qJuDDT8N79DGB8fY8EgGTb\"\n                },\n                {\n                    \"endToEndId\": \"DNd8LYNUfGWoV47vxjyi1AmaqsfFO4UP\",\n                    \"valor\": \"881784483.77\",\n                    \"horario\": \"1976-09-06T00:00:00.0Z\",\n                    \"devolucoes\": [\n                        {\n                            \"id\": \"jYChZqtRlbvdidvC2NEd3t\",\n                            \"rtrId\": \"bC9pZOX342FfXO8S0g80EWECEsTgpjNF\",\n                            \"valor\": \"7589901.70\",\n                            \"horario\": {\n                                \"solicitacao\": \"2005-08-20T00:00:00.0Z\",\n                                \"liquidacao\": \"2013-04-18T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"consectetur ad\"\n                        },\n                        {\n                            \"id\": \"Bp9k7IH\",\n                            \"rtrId\": \"WZ6hB6s3NZjOfRnGqvyauErwZgeyhDVF\",\n                            \"valor\": \"827.44\",\n                            \"horario\": {\n                                \"solicitacao\": \"1985-12-27T00:00:00.0Z\",\n                                \"liquidacao\": \"1981-03-15T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"proident amet deserunt\"\n                        },\n                        {\n                            \"id\": \"VyvxpQIV\",\n                            \"rtrId\": \"kzXEZNadWG1d77upms4CnYrE2MmIEWcJ\",\n                            \"valor\": \"135.07\",\n                            \"horario\": {\n                                \"solicitacao\": \"1969-04-14T00:00:00.0Z\",\n                                \"liquidacao\": \"1959-09-26T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"laboris\"\n                        },\n                        {\n                            \"id\": \"RBcweYovjcCgx1Y\",\n                            \"rtrId\": \"41iSGdqgePiAxGPuuVcSRoVXl3yxIq5C\",\n                            \"valor\": \"39.87\",\n                            \"horario\": {\n                                \"solicitacao\": \"2015-12-04T00:00:00.0Z\",\n                                \"liquidacao\": \"1990-04-24T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"cillum Excepteur\"\n                        }\n                    ],\n                    \"infoPagador\": \"Ut est\",\n                    \"txid\": \"iAv8MzjVHBI8VDC3oOQ7COD7RlP4y3Edgsl\",\n                    \"chave\": \"co\"\n                }\n            ],\n            \"infoAdicionais\": [\n                {\n                    \"nome\": \"est veniam consequat dolo\",\n                    \"valor\": \"\"\n                }\n            ],\n            \"location\": \"https://RcGEAB.qkkZ2nsbpew3nv9ATS7BvMfwgyt0gTnV.EoG3jwuhyUpAYWxm4cE\",\n            \"solicitacaoPagador\": \"incididunt\"\n        },\n        {\n            \"status\": \"ATIVA\",\n            \"valor\": {\n                \"original\": \"850.41\",\n                \"modalidadeAlteracao\": 0\n            },\n            \"chave\": \"ipsum sit adipisicing\",\n            \"calendario\": {\n                \"expiracao\": 932973642,\n                \"criacao\": \"1970-04-23T00:00:00.0Z\"\n            },\n            \"txid\": \"crNfwpSZYidTzZH0HYY8yFWBjaIUwYg6C\",\n            \"revisao\": -1945092335,\n            \"devedor\": {\n                \"cnpj\": \"77267789030907\",\n                \"nome\": \"aute\"\n            },\n            \"infoAdicionais\": [\n                {\n                    \"nome\": \"sit veniam laborum magna ut\",\n                    \"valor\": \"dolore Duis exercitation\"\n                },\n                {\n                    \"nome\": \"ve\",\n                    \"valor\": \"in cillum\"\n                },\n                {\n                    \"nome\": \"laboris labore ut\",\n                    \"valor\": \"veniam ex\"\n                },\n                {\n                    \"nome\": \"dolore nulla m\",\n                    \"valor\": \"sunt enim ullamco\"\n                },\n                {\n                    \"nome\": \"in mollit\",\n                    \"valor\": \"in eu occaecat sunt fugiat\"\n                }\n            ],\n            \"pix\": [\n                {\n                    \"endToEndId\": \"hsK4kre6mXRqsVzdrP9UJM221oEsCZWE\",\n                    \"valor\": \"9120.45\",\n                    \"horario\": \"2001-08-12T00:00:00.0Z\",\n                    \"chave\": \"veniam\",\n                    \"txid\": \"73MsZQ48inLAFD7ngcGMxdCQkD\",\n                    \"devolucoes\": [\n                        {\n                            \"id\": \"MIWxjb\",\n                            \"rtrId\": \"yrbdV70MQYzPr40UncjLtW6X3pUxjbCv\",\n                            \"valor\": \"1580517632.42\",\n                            \"horario\": {\n                                \"liquidacao\": \"1994-10-01T00:00:00.0Z\",\n                                \"solicitacao\": \"1988-08-09T00:00:00.0Z\"\n                            },\n                            \"status\": \"DEVOLVIDO\",\n                            \"motivo\": \"aliquip sit\"\n                        }\n                    ],\n                    \"infoPagador\": \"irure consequat exercitation\"\n                },\n                {\n                    \"endToEndId\": \"l0ujBejhpmTRJFaftWCUyvlnPDOoQUIC\",\n                    \"valor\": \"833.14\",\n                    \"horario\": \"1997-05-03T00:00:00.0Z\",\n                    \"devolucoes\": [\n                        {\n                            \"id\": \"8EI6vHTf\",\n                            \"rtrId\": \"HavxwPN9mJrP1S9b9YZtnS5GJ77qOZrV\",\n                            \"valor\": \"3.14\",\n                            \"horario\": {\n                                \"liquidacao\": \"1985-12-15T00:00:00.0Z\",\n                                \"solicitacao\": \"1948-08-22T00:00:00.0Z\"\n                            },\n                            \"status\": \"NAO_REALIZADO\",\n                            \"motivo\": \"elit non qui sunt\"\n                        },\n                        {\n                            \"id\": \"2FOTIaUlhVOBQG5Qd0kp\",\n                            \"rtrId\": \"EtVpEQfQBMqalF4lE9t2jDmsJp2Td9bO\",\n                            \"valor\": \"48649.20\",\n                            \"horario\": {\n                                \"solicitacao\": \"2005-04-26T00:00:00.0Z\",\n                                \"liquidacao\": \"1959-10-17T00:00:00.0Z\"\n                            },\n                            \"status\": \"DEVOLVIDO\",\n                            \"motivo\": \"velit eiusmod deserunt eu esse\"\n                        },\n                        {\n                            \"id\": \"qgf67Ia0AMlGKJkqh2N78Vu2McWfRmU\",\n                            \"rtrId\": \"HiQZg1f2ftGglXA9XtDYFOvrsz52p9zo\",\n                            \"valor\": \"732.01\",\n                            \"horario\": {\n                                \"solicitacao\": \"2001-02-17T00:00:00.0Z\",\n                                \"liquidacao\": \"1987-02-10T00:00:00.0Z\"\n                            },\n                            \"status\": \"NAO_REALIZADO\",\n                            \"motivo\": \"exercitation ut fugiat aliqua\"\n                        },\n                        {\n                            \"id\": \"jBdDL1BeI8t5O3HuKwZHq\",\n                            \"rtrId\": \"IcMBNgVq76lw56p0scbeU7mlwVQxYy6J\",\n                            \"valor\": \"7381606095.20\",\n                            \"horario\": {\n                                \"solicitacao\": \"1986-11-13T00:00:00.0Z\",\n                                \"liquidacao\": \"2002-01-28T00:00:00.0Z\"\n                            },\n                            \"status\": \"EM_PROCESSAMENTO\",\n                            \"motivo\": \"incididunt aute sunt commodo cillum\"\n                        }\n                    ],\n                    \"chave\": \"nostrud amet veniam ut\",\n                    \"infoPagador\": \"et nisi\",\n                    \"txid\": \"Mkbwsgi3Xy8YF0mlKQqDMxseWhLHuKu5qVB\"\n                },\n                {\n                    \"endToEndId\": \"AgflXVLCR65aESopAAVc3XCzqepRr9SZ\",\n                    \"valor\": \"7294.80\",\n                    \"horario\": \"1973-11-09T00:00:00.0Z\",\n                    \"infoPagador\": \"enim ea magna Excepteur\",\n                    \"devolucoes\": [\n                        {\n                            \"id\": \"oV7pcCuhC7yr3mlR5OnWLTjr\",\n                            \"rtrId\": \"p8O7dotBoKMHRh8lNpcDZHFDpMcIGF2k\",\n                            \"valor\": \"389096285.02\",\n                            \"horario\": {\n                                \"liquidacao\": \"1960-09-26T00:00:00.0Z\",\n                                \"solicitacao\": \"1984-02-04T00:00:00.0Z\"\n                            },\n                            \"status\": \"NAO_REALIZADO\",\n                            \"motivo\": \"Duis consequat\"\n                        },\n                        {\n                            \"id\": \"05OcXCpM7Se1OfdAJWzv3DRYlNwRIq5FBiy\",\n                            \"rtrId\": \"WvKG8quCRISGt4KMrR4QEmZIeLtl07We\",\n                            \"valor\": \"4732741.91\",\n                            \"horario\": {\n                                \"solicitacao\": \"1950-03-05T00:00:00.0Z\",\n                                \"liquidacao\": \"1998-05-06T00:00:00.0Z\"\n                            },\n                            \"status\": \"DEVOLVIDO\",\n                            \"motivo\": \"eiusmod irure est\"\n                        },\n                        {\n                            \"id\": \"g7ekHn2RyqrtRijf9X\",\n                            \"rtrId\": \"JKYaoBicblqQvAiy5zzHi70YpaAtpk7d\",\n                            \"valor\": \"524487738.00\",\n                            \"horario\": {\n                                \"liquidacao\": \"2017-12-04T00:00:00.0Z\",\n                                \"solicitacao\": \"1959-09-01T00:00:00.0Z\"\n                            },\n                            \"status\": \"NAO_REALIZADO\",\n                            \"motivo\": \"amet elit eiusmod incididunt\"\n                        }\n                    ],\n                    \"txid\": \"kRx4r6G5nNVUl3xlZBZYgyPrMyB\",\n                    \"chave\": \"esse laboris\"\n                }\n            ],\n            \"location\": \"https://UizCQunsitdlNzvilplSMehQKCGFbk.cgG0gJ+MXsuNtxKGYUlCGX4CRpJhiE2ilHVaJQ\",\n            \"solicitacaoPagador\": \"veniam\",\n            \"brcode\": \"laboris Ut\",\n            \"loc\": {\n                \"id\": 6846740510226158000,\n                \"tipoCob\": \"cob\",\n                \"criacao\": \"2017-02-28T00:00:00.0Z\",\n                \"location\": \"https://YsiuENYMRZMginshOJYawPAuntqHBGrRk.bhbnXwBXLNzvxjTbNNa+EzD.q11v6npBDGU\",\n                \"brcode\": \"qui\",\n                \"txid\": 20931923.274240777\n            }\n        }\n    ],\n    \"parametros\": {\n        \"cnpj\": \"30567132020229\",\n        \"cpf\": \"18897289365\",\n        \"fim\": \"1951-06-29T00:00:00.0Z\",\n        \"inicio\": \"1989-05-20T00:00:00.0Z\",\n        \"locationPresente\": false,\n        \"paginacao\": {\n            \"itensPorPagina\": 11050549,\n            \"paginaAtual\": 42528615,\n            \"quantidadeDePaginas\": 49798573,\n            \"quantidadeTotalDeItens\": 54949449\n        },\n        \"status\": \"enim id mollit\"\n    }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Buscar pix",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Response status code is 200\", function () {\r",
+                      "    pm.expect(pm.response.code).to.eql(200);\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Response time is less than 200ms\", function () {\r",
+                      "    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Response Content-Type is 'text/html'\", function () {\r",
+                      "    pm.expect(pm.response.headers.get('Content-Type')).to.equal('text/html');\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Response contains the title 'Request Rejected'\", function () {\r",
+                      "    const responseBody = pm.response.text();\r",
+                      "    pm.expect(responseBody).to.include(\"<title>Request Rejected</title>\");\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Response includes a support ID in the body\", function () {\r",
+                      "    const responseBody = pm.response.text();\r",
+                      "    pm.expect(responseBody).to.include(\"support ID is:\");\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "packages": {},
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "client_id",
+                    "value": "{{client_id}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}{{recebimento_pix}}/pix?inicio=2020-04-01T00:00:00Z&fim=2020-04-01T23:59:59Z",
+                  "host": ["{{base_url}}{{recebimento_pix}}"],
+                  "path": ["pix"],
+                  "query": [
+                    {
+                      "key": "inicio",
+                      "value": "2020-04-01T00:00:00Z"
+                    },
+                    {
+                      "key": "fim",
+                      "value": "2020-04-01T23:59:59Z"
+                    },
+                    {
+                      "key": "cpf",
+                      "value": "",
+                      "disabled": true
+                    },
+                    {
+                      "key": "cnpj",
+                      "value": "",
+                      "disabled": true
+                    },
+                    {
+                      "key": "txid",
+                      "value": null,
+                      "disabled": true
+                    },
+                    {
+                      "key": "txIdPresente",
+                      "value": null,
+                      "disabled": true
+                    },
+                    {
+                      "key": "devolucaoPresente",
+                      "value": null,
+                      "disabled": true
+                    },
+                    {
+                      "key": "paginacao.paginaAtual",
+                      "value": null,
+                      "disabled": true
+                    },
+                    {
+                      "key": "paginacao.itensPorPagina",
+                      "value": null,
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "Buscar pix (resposta)",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "client_id",
+                        "value": "{{client_id}}",
+                        "type": "text"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}{{recebimento_pix}}/pix?inicio=2020-04-01&fim=2020-04-01",
+                      "host": ["{{base_url}}{{recebimento_pix}}"],
+                      "path": ["pix"],
+                      "query": [
+                        {
+                          "key": "inicio",
+                          "value": "2020-04-01"
+                        },
+                        {
+                          "key": "fim",
+                          "value": "2020-04-01"
+                        },
+                        {
+                          "key": "cpf",
+                          "value": "",
+                          "disabled": true
+                        },
+                        {
+                          "key": "cnpj",
+                          "value": "",
+                          "disabled": true
+                        },
+                        {
+                          "key": "txid",
+                          "value": null,
+                          "disabled": true
+                        },
+                        {
+                          "key": "txIdPresente",
+                          "value": null,
+                          "disabled": true
+                        },
+                        {
+                          "key": "devolucaoPresente",
+                          "value": null,
+                          "disabled": true
+                        },
+                        {
+                          "key": "paginacao.paginaAtual",
+                          "value": null,
+                          "disabled": true
+                        },
+                        {
+                          "key": "paginacao.itensPorPagina",
+                          "value": null,
+                          "disabled": true
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "",
+                  "header": [
+                    {
+                      "key": "Cache-Control",
+                      "value": "no-cache"
+                    },
+                    {
+                      "key": "Connection",
+                      "value": "close"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "text/html; charset=utf-8"
+                    },
+                    {
+                      "key": "Pragma",
+                      "value": "no-cache"
+                    },
+                    {
+                      "key": "Content-Length",
+                      "value": "246"
+                    },
+                    {
+                      "key": "Strict-Transport-Security",
+                      "value": "max-age=16070400; includeSubDomains"
+                    }
+                  ],
+                  "cookie": [
+                    {
+                      "expires": "Invalid Date",
+                      "domain": "",
+                      "path": ""
+                    }
+                  ],
+                  "body": "{\n  \"parametros\": {\n    \"inicio\": \"2020-04-01T00:00:00Z\",\n    \"fim\": \"2020-04-01T23:59:59Z\",\n    \"paginacao\": {\n      \"paginaAtual\": 0,\n      \"itensPorPagina\": 100,\n      \"quantidadeDePaginas\": 1,\n      \"quantidadeTotalDeItens\": 2\n    }\n  },\n  \"pix\": [\n    {\n      \"$ref\": \"https://api.sicoob.com.br/portal-developers/v2/swaggers/api-pix#/components/examples/pixResponse1/value\"\n    },\n    {\n      \"$ref\": \"https://api.sicoob.com.br/portal-developers/v2/swaggers/api-pix#/components/examples/pixResponse2/value\"\n    }\n  ]\n}"
+                }
+              ]
+            },
+            {
+              "name": "Consultar um pix",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "client_id",
+                    "value": "{{client_id}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}{{recebimento_pix}}/pix/{{e2eid}}",
+                  "host": ["{{base_url}}{{recebimento_pix}}"],
+                  "path": ["pix", "{{e2eid}}"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Pedir devolução pix",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Response status code is 200\", function () {\r",
+                      "    pm.expect(pm.response.code).to.eql(200);\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Response time is less than 200ms\", function () {\r",
+                      "    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Response Content-Type is 'text/html'\", function () {\r",
+                      "    pm.expect(pm.response.headers.get('Content-Type')).to.equal('text/html');\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Response contains the title 'Request Rejected'\", function () {\r",
+                      "    const responseBody = pm.response.text();\r",
+                      "    pm.expect(responseBody).to.include(\"<title>Request Rejected</title>\");\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Response includes a support ID in the body\", function () {\r",
+                      "    const responseBody = pm.response.text();\r",
+                      "    pm.expect(responseBody).to.include(\"support ID is:\");\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "client_id",
+                    "value": "{{client_id}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"valor\": \"7.89\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}{{recebimento_pix}}/pix/{{e2eid}}/devolucao/{{id_devolucao}}",
+                  "host": ["{{base_url}}{{recebimento_pix}}"],
+                  "path": ["pix", "{{e2eid}}", "devolucao", "{{id_devolucao}}"]
+                }
+              },
+              "response": [
+                {
+                  "name": "Pedir devolução pix (resoposta)",
+                  "originalRequest": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "client_id",
+                        "value": "{{client_id}}",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"valor\": \"7.89\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}{{recebimento_pix}}/pix/{{e2eid}}/devolucao/{{id_devolucao}}",
+                      "host": ["{{base_url}}{{recebimento_pix}}"],
+                      "path": [
+                        "pix",
+                        "{{e2eid}}",
+                        "devolucao",
+                        "{{id_devolucao}}"
+                      ],
+                      "query": [
+                        {
+                          "key": "cpf",
+                          "value": "",
+                          "disabled": true
+                        },
+                        {
+                          "key": "cnpj",
+                          "value": "",
+                          "disabled": true
+                        },
+                        {
+                          "key": "txid",
+                          "value": null,
+                          "disabled": true
+                        },
+                        {
+                          "key": "txIdPresente",
+                          "value": null,
+                          "disabled": true
+                        },
+                        {
+                          "key": "devolucaoPresente",
+                          "value": null,
+                          "disabled": true
+                        },
+                        {
+                          "key": "paginacao.paginaAtual",
+                          "value": null,
+                          "disabled": true
+                        },
+                        {
+                          "key": "paginacao.itensPorPagina",
+                          "value": null,
+                          "disabled": true
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Connection",
+                      "value": "Keep-Alive"
+                    },
+                    {
+                      "key": "access-control-allow-origin",
+                      "value": "*"
+                    },
+                    {
+                      "key": "access-control-allow-headers",
+                      "value": "*"
+                    },
+                    {
+                      "key": "access-control-allow-credentials",
+                      "value": "true"
+                    },
+                    {
+                      "key": "access-control-expose-headers",
+                      "value": "*"
+                    },
+                    {
+                      "key": "content-type",
+                      "value": "application/json"
+                    },
+                    {
+                      "key": "date",
+                      "value": "Mon, 25 Aug 2025 23:11:08 GMT"
+                    },
+                    {
+                      "key": "Vary",
+                      "value": "Accept-Encoding"
+                    },
+                    {
+                      "key": "X-Global-Transaction-ID",
+                      "value": "407f742d68aced8c01b5bd31"
+                    },
+                    {
+                      "key": "Content-Encoding",
+                      "value": "gzip"
+                    },
+                    {
+                      "key": "Transfer-Encoding",
+                      "value": "chunked"
+                    },
+                    {
+                      "key": "Strict-Transport-Security",
+                      "value": "max-age=16070400; includeSubDomains"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"horario\": {\n        \"liquidacao\": \"1976-10-17T00:00:00.0Z\",\n        \"solicitacao\": \"1962-06-03T00:00:00.0Z\"\n    },\n    \"id\": \"9Z5YW\",\n    \"motivo\": \"culpa\",\n    \"rtrId\": \"6BO9zbilWUqZD0Nd7nSAru8snDRqWZ3f\",\n    \"status\": \"DEVOLVIDO\",\n    \"valor\": \"506041707.11\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Consultar devolução pix",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Response status code is 200\", function () {\r",
+                      "    pm.expect(pm.response.code).to.eql(200);\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Response time is less than 200ms\", function () {\r",
+                      "    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Response Content-Type is 'text/html'\", function () {\r",
+                      "    pm.expect(pm.response.headers.get('Content-Type')).to.equal('text/html');\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Response contains the title 'Request Rejected'\", function () {\r",
+                      "    const responseBody = pm.response.text();\r",
+                      "    pm.expect(responseBody).to.include(\"<title>Request Rejected</title>\");\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Response includes a support ID in the body\", function () {\r",
+                      "    const responseBody = pm.response.text();\r",
+                      "    pm.expect(responseBody).to.include(\"support ID is:\");\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {}
+                  }
+                }
+              ],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "client_id",
+                    "value": "{{client_id}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}{{recebimento_pix}}/pix/{{e2eid}}/devolucao/{{id_devolucao}}",
+                  "host": ["{{base_url}}{{recebimento_pix}}"],
+                  "path": ["pix", "{{e2eid}}", "devolucao", "{{id_devolucao}}"]
+                }
+              },
+              "response": [
+                {
+                  "name": "Consultar devolução pix (resposta)",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "client_id",
+                        "value": "{{client_id}}",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}{{recebimento_pix}}/pix/{{e2eid}}/devolucao/{{id_devolucao}}",
+                      "host": ["{{base_url}}{{recebimento_pix}}"],
+                      "path": [
+                        "pix",
+                        "{{e2eid}}",
+                        "devolucao",
+                        "{{id_devolucao}}"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Connection",
+                      "value": "Keep-Alive"
+                    },
+                    {
+                      "key": "access-control-allow-origin",
+                      "value": "*"
+                    },
+                    {
+                      "key": "access-control-allow-headers",
+                      "value": "*"
+                    },
+                    {
+                      "key": "access-control-allow-credentials",
+                      "value": "true"
+                    },
+                    {
+                      "key": "access-control-expose-headers",
+                      "value": "*"
+                    },
+                    {
+                      "key": "content-type",
+                      "value": "application/json"
+                    },
+                    {
+                      "key": "date",
+                      "value": "Mon, 25 Aug 2025 23:13:48 GMT"
+                    },
+                    {
+                      "key": "Vary",
+                      "value": "Accept-Encoding"
+                    },
+                    {
+                      "key": "X-Global-Transaction-ID",
+                      "value": "407f742d68acee2c029d31b2"
+                    },
+                    {
+                      "key": "Content-Encoding",
+                      "value": "gzip"
+                    },
+                    {
+                      "key": "Transfer-Encoding",
+                      "value": "chunked"
+                    },
+                    {
+                      "key": "Strict-Transport-Security",
+                      "value": "max-age=16070400; includeSubDomains"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"horario\": {\n        \"liquidacao\": \"1958-04-25T00:00:00.0Z\",\n        \"solicitacao\": \"1971-10-04T00:00:00.0Z\"\n    },\n    \"id\": \"AYhP2aQZjrb5XQEqPRdo\",\n    \"motivo\": \"adipisicing ea\",\n    \"rtrId\": \"2h1FP36RU6TXVtK41gzi5HOhkmu5aZoF\",\n    \"status\": \"DEVOLVIDO\",\n    \"valor\": \"641.51\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Definir webhook",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "client_id",
+                    "value": "{{client_id}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"webhookUrl\": \"https://exemplo.seudominio.com.br/api/sicoob/pix-webhook\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}{{recebimento_pix}}/webhook/{{chave_pix}}",
+                  "host": ["{{base_url}}{{recebimento_pix}}"],
+                  "path": ["webhook", "{{chave_pix}}"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Consultar um webhook",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "client_id",
+                    "value": "{{client_id}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}{{recebimento_pix}}/webhook/{{chave_pix}}",
+                  "host": ["{{base_url}}{{recebimento_pix}}"],
+                  "path": ["webhook", "{{chave_pix}}"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Deletar webhook",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "client_id",
+                    "value": "{{client_id}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}{{recebimento_pix}}/webhook/{{chave_pix}}",
+                  "host": ["{{base_url}}{{recebimento_pix}}"],
+                  "path": ["webhook", "{{chave_pix}}"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Buscar todos os webhook",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "client_id",
+                    "value": "{{client_id}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}{{recebimento_pix}}/webhook",
+                  "host": ["{{base_url}}{{recebimento_pix}}"],
+                  "path": ["webhook"],
+                  "query": [
+                    {
+                      "key": "inicio",
+                      "value": "2020-04-01",
+                      "disabled": true
+                    },
+                    {
+                      "key": "fim",
+                      "value": "2020-04-01",
+                      "disabled": true
+                    },
+                    {
+                      "key": "paginacao.paginaAtual",
+                      "value": "1",
+                      "disabled": true
+                    },
+                    {
+                      "key": "paginacao.itensPorPagina",
+                      "value": "100",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "BOLETO",
+      "item": [
+        {
+          "name": "Pagamento",
+          "item": [
+            {
+              "name": "Pagamento de boletos",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "client_id",
+                    "value": "{{client_id}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"identificadorConsulta\": \"hash\",\n    \"valorBoleto\": 152.3,\n    \"valorDescontoAbatimento\": 0,\n    \"valorMultaMora\": 0,\n    \"descricaoObservacao\": \"Boleto da Escola\",\n    \"aceitaValorDivergente\": true,\n    \"numeroCpfCnpjPortador\": \"12345678900\",\n    \"nomePortador\": \"Rosa Maria da Silva\",\n    \"amount\": 152.3,\n    \"date\": \"2021-04-24\",\n    \"debtorAccount\": {\n        \"issuer\": 1234,\n        \"number\": 1234569,\n        \"accountType\": 0,\n        \"personType\": 0\n    }\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}{{pagamento_boleto}}/boletos/pagamentos/{{codigoBarras}}",
+                  "host": ["{{base_url}}{{pagamento_boleto}}"],
+                  "path": ["boletos", "pagamentos", "{{codigoBarras}}"],
+                  "query": [
+                    {
+                      "key": "numeroConta",
+                      "value": "142",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Consultar um boleto",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "client_id",
+                    "value": "{{client_id}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "disabled": true
+                  },
+                  {
+                    "key": "x-idempotency-key",
+                    "value": "4342-8901234-550e8400-e29b-41d4-a716-446655440000",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"numeroCliente\": 25546454,\n    \"codigoModalidade\": 1,\n    \"numeroContaCorrente\": 0,\n    \"codigoEspecieDocumento\": \"DM\",\n    \"dataEmissao\": \"2018-09-20\",\n    \"nossoNumero\": 2588658,\n    \"seuNumero\": \"1235512\",\n    \"identificacaoBoletoEmpresa\": \"4562\",\n    \"identificacaoEmissaoBoleto\": 1,\n    \"identificacaoDistribuicaoBoleto\": 1,\n    \"valor\": 156.23,\n    \"dataVencimento\": \"2018-09-20\",\n    \"dataLimitePagamento\": \"2018-09-20\",\n    \"valorAbatimento\": 1,\n    \"tipoDesconto\": 1,\n    \"dataPrimeiroDesconto\": \"2018-09-20\",\n    \"valorPrimeiroDesconto\": 1,\n    \"dataSegundoDesconto\": \"2018-09-20\",\n    \"valorSegundoDesconto\": 0,\n    \"dataTerceiroDesconto\": \"2018-09-20\",\n    \"valorTerceiroDesconto\": 0,\n    \"tipoMulta\": 1,\n    \"dataMulta\": \"2018-09-20\",\n    \"valorMulta\": 5,\n    \"tipoJurosMora\": 1,\n    \"dataJurosMora\": \"2018-09-20\",\n    \"valorJurosMora\": 4,\n    \"numeroParcela\": 1,\n    \"aceite\": true,\n    \"codigoNegativacao\": 2,\n    \"numeroDiasNegativacao\": 60,\n    \"codigoProtesto\": 1,\n    \"numeroDiasProtesto\": 30,\n    \"pagador\": {\n        \"numeroCpfCnpj\": \"98765432185\",\n        \"nome\": \"Marcelo dos Santos\",\n        \"endereco\": \"Rua 87 Quadra 1 Lote 1 casa 1\",\n        \"bairro\": \"Santa Rosa\",\n        \"cidade\": \"Luziânia\",\n        \"cep\": \"72320000\",\n        \"uf\": \"DF\",\n        \"email\": \"pagador@dominio.com.br\"\n    },\n    \"beneficiarioFinal\": {\n        \"numeroCpfCnpj\": \"98784978699\",\n        \"nome\": \"Lucas de Lima\"\n    },\n    \"mensagensInstrucao\": [\n        \"Descrição da Instrução 1\",\n        \"Descrição da Instrução 2\",\n        \"Descrição da Instrução 3\",\n        \"Descrição da Instrução 4\",\n        \"Descrição da Instrução 5\"\n    ],\n    \"gerarPdf\": false,\n    \"rateioCreditos\": [\n        {\n            \"numeroBanco\": 756,\n            \"numeroAgencia\": 4027,\n            \"numeroContaCorrente\": \"98765-4\",\n            \"contaPrincipal\": true,\n            \"codigoTipoValorRateio\": 1,\n            \"valorRateio\": \"100\",\n            \"codigoTipoCalculoRateio\": 1,\n            \"numeroCpfCnpjTitular\": \"98765432185\",\n            \"nomeTitular\": \"Marcelo dos Santos\",\n            \"codigoFinalidadeTed\": \"10\",\n            \"codigoTipoContaDestinoTed\": \"CC\",\n            \"quantidadeDiasFloat\": 1,\n            \"dataFloatCredito\": \"2020-12-30\"\n        }\n    ],\n    \"codigoCadastrarPIX\": 1,\n    \"numeroContratoCobranca\": 1\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}{{pagamento_boleto}}/boletos/{{codigoBarras}}?numeroConta=1234569&dataPagamento=2024-07-10",
+                  "host": ["{{base_url}}{{pagamento_boleto}}"],
+                  "path": ["boletos", "{{codigoBarras}}"],
+                  "query": [
+                    {
+                      "key": "numeroConta",
+                      "value": "1234569"
+                    },
+                    {
+                      "key": "dataPagamento",
+                      "value": "2024-07-10"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Consultar boleto",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "client_id",
+                    "value": "{{client_id}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"numeroCliente\": 25546454,\n    \"codigoModalidade\": 1,\n    \"numeroContaCorrente\": 0,\n    \"codigoEspecieDocumento\": \"DM\",\n    \"dataEmissao\": \"2018-09-20\",\n    \"nossoNumero\": 2588658,\n    \"seuNumero\": \"1235512\",\n    \"identificacaoBoletoEmpresa\": \"4562\",\n    \"identificacaoEmissaoBoleto\": 1,\n    \"identificacaoDistribuicaoBoleto\": 1,\n    \"valor\": 156.23,\n    \"dataVencimento\": \"2018-09-20\",\n    \"dataLimitePagamento\": \"2018-09-20\",\n    \"valorAbatimento\": 1,\n    \"tipoDesconto\": 1,\n    \"dataPrimeiroDesconto\": \"2018-09-20\",\n    \"valorPrimeiroDesconto\": 1,\n    \"dataSegundoDesconto\": \"2018-09-20\",\n    \"valorSegundoDesconto\": 0,\n    \"dataTerceiroDesconto\": \"2018-09-20\",\n    \"valorTerceiroDesconto\": 0,\n    \"tipoMulta\": 1,\n    \"dataMulta\": \"2018-09-20\",\n    \"valorMulta\": 5,\n    \"tipoJurosMora\": 1,\n    \"dataJurosMora\": \"2018-09-20\",\n    \"valorJurosMora\": 4,\n    \"numeroParcela\": 1,\n    \"aceite\": true,\n    \"codigoNegativacao\": 2,\n    \"numeroDiasNegativacao\": 60,\n    \"codigoProtesto\": 1,\n    \"numeroDiasProtesto\": 30,\n    \"pagador\": {\n        \"numeroCpfCnpj\": \"98765432185\",\n        \"nome\": \"Marcelo dos Santos\",\n        \"endereco\": \"Rua 87 Quadra 1 Lote 1 casa 1\",\n        \"bairro\": \"Santa Rosa\",\n        \"cidade\": \"Luziânia\",\n        \"cep\": \"72320000\",\n        \"uf\": \"DF\",\n        \"email\": \"pagador@dominio.com.br\"\n    },\n    \"beneficiarioFinal\": {\n        \"numeroCpfCnpj\": \"98784978699\",\n        \"nome\": \"Lucas de Lima\"\n    },\n    \"mensagensInstrucao\": [\n        \"Descrição da Instrução 1\",\n        \"Descrição da Instrução 2\",\n        \"Descrição da Instrução 3\",\n        \"Descrição da Instrução 4\",\n        \"Descrição da Instrução 5\"\n    ],\n    \"gerarPdf\": false,\n    \"rateioCreditos\": [\n        {\n            \"numeroBanco\": 756,\n            \"numeroAgencia\": 4027,\n            \"numeroContaCorrente\": \"98765-4\",\n            \"contaPrincipal\": true,\n            \"codigoTipoValorRateio\": 1,\n            \"valorRateio\": \"100\",\n            \"codigoTipoCalculoRateio\": 1,\n            \"numeroCpfCnpjTitular\": \"98765432185\",\n            \"nomeTitular\": \"Marcelo dos Santos\",\n            \"codigoFinalidadeTed\": \"10\",\n            \"codigoTipoContaDestinoTed\": \"CC\",\n            \"quantidadeDiasFloat\": 1,\n            \"dataFloatCredito\": \"2020-12-30\"\n        }\n    ],\n    \"codigoCadastrarPIX\": 1,\n    \"numeroContratoCobranca\": 1\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}{{pagamento_boleto}}/boletos?numeroConta=1234569&dataInicial=2022-07-30&dataFinal=2022-07-30&situacao=1&tipoData=2",
+                  "host": ["{{base_url}}{{pagamento_boleto}}"],
+                  "path": ["boletos"],
+                  "query": [
+                    {
+                      "key": "numeroConta",
+                      "value": "1234569"
+                    },
+                    {
+                      "key": "dataInicial",
+                      "value": "2022-07-30"
+                    },
+                    {
+                      "key": "dataFinal",
+                      "value": "2022-07-30"
+                    },
+                    {
+                      "key": "situacao",
+                      "value": "1"
+                    },
+                    {
+                      "key": "tipoData",
+                      "value": "2"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Recebimento",
+          "item": [
+            {
+              "name": "Criar boleto (POST /cobranca-bancaria/v3/boletos)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "client_id",
+                    "value": "{{client_id}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"numeroCliente\": 25546454,\n    \"codigoModalidade\": 1,\n    \"numeroContaCorrente\": 0,\n    \"codigoEspecieDocumento\": \"DM\",\n    \"dataEmissao\": \"2018-09-20\",\n    \"nossoNumero\": 2588658,\n    \"seuNumero\": \"1235512\",\n    \"identificacaoBoletoEmpresa\": \"4562\",\n    \"identificacaoEmissaoBoleto\": 1,\n    \"identificacaoDistribuicaoBoleto\": 1,\n    \"valor\": 156.23,\n    \"dataVencimento\": \"2018-09-20\",\n    \"dataLimitePagamento\": \"2018-09-20\",\n    \"valorAbatimento\": 1,\n    \"tipoDesconto\": 1,\n    \"dataPrimeiroDesconto\": \"2018-09-20\",\n    \"valorPrimeiroDesconto\": 1,\n    \"dataSegundoDesconto\": \"2018-09-20\",\n    \"valorSegundoDesconto\": 0,\n    \"dataTerceiroDesconto\": \"2018-09-20\",\n    \"valorTerceiroDesconto\": 0,\n    \"tipoMulta\": 1,\n    \"dataMulta\": \"2018-09-20\",\n    \"valorMulta\": 5,\n    \"tipoJurosMora\": 1,\n    \"dataJurosMora\": \"2018-09-20\",\n    \"valorJurosMora\": 4,\n    \"numeroParcela\": 1,\n    \"aceite\": true,\n    \"codigoNegativacao\": 2,\n    \"numeroDiasNegativacao\": 60,\n    \"codigoProtesto\": 1,\n    \"numeroDiasProtesto\": 30,\n    \"pagador\": {\n        \"numeroCpfCnpj\": \"98765432185\",\n        \"nome\": \"Marcelo dos Santos\",\n        \"endereco\": \"Rua 87 Quadra 1 Lote 1 casa 1\",\n        \"bairro\": \"Santa Rosa\",\n        \"cidade\": \"Luziânia\",\n        \"cep\": \"72320000\",\n        \"uf\": \"DF\",\n        \"email\": \"pagador@dominio.com.br\"\n    },\n    \"beneficiarioFinal\": {\n        \"numeroCpfCnpj\": \"98784978699\",\n        \"nome\": \"Lucas de Lima\"\n    },\n    \"mensagensInstrucao\": [\n        \"Descrição da Instrução 1\",\n        \"Descrição da Instrução 2\",\n        \"Descrição da Instrução 3\",\n        \"Descrição da Instrução 4\",\n        \"Descrição da Instrução 5\"\n    ],\n    \"gerarPdf\": false,\n    \"rateioCreditos\": [\n        {\n            \"numeroBanco\": 756,\n            \"numeroAgencia\": 4027,\n            \"numeroContaCorrente\": \"98765-4\",\n            \"contaPrincipal\": true,\n            \"codigoTipoValorRateio\": 1,\n            \"valorRateio\": \"100\",\n            \"codigoTipoCalculoRateio\": 1,\n            \"numeroCpfCnpjTitular\": \"98765432185\",\n            \"nomeTitular\": \"Marcelo dos Santos\",\n            \"codigoFinalidadeTed\": \"10\",\n            \"codigoTipoContaDestinoTed\": \"CC\",\n            \"quantidadeDiasFloat\": 1,\n            \"dataFloatCredito\": \"2020-12-30\"\n        }\n    ],\n    \"codigoCadastrarPIX\": 1,\n    \"numeroContratoCobranca\": 1\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}{{recebimento_boleto}}/boletos",
+                  "host": ["{{base_url}}{{recebimento_boleto}}"],
+                  "path": ["boletos"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Consultar boleto por nossoNúmero (GET /boletos/{nossoNumero})",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "client_id",
+                    "value": "{{client_id}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}{{recebimento_boleto}}/boletos/{{nossoNumero}}",
+                  "host": ["{{base_url}}{{recebimento_boleto}}"],
+                  "path": ["boletos", "{{nossoNumero}}"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Listar boletos (GET /boletos?inicio&fim)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "client_id",
+                    "value": "{{client_id}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}{{recebimento_boleto}}/boletos?numeroConta=1234569&codigoBarras={{codigoBarras}}",
+                  "host": ["{{base_url}}{{recebimento_boleto}}"],
+                  "path": ["boletos"],
+                  "query": [
+                    {
+                      "key": "inicio",
+                      "value": "2025-01-01",
+                      "disabled": true
+                    },
+                    {
+                      "key": "fim",
+                      "value": "2025-12-31",
+                      "disabled": true
+                    },
+                    {
+                      "key": "paginaAtual",
+                      "value": "0",
+                      "disabled": true
+                    },
+                    {
+                      "key": "itensPorPagina",
+                      "value": "20",
+                      "disabled": true
+                    },
+                    {
+                      "key": "numeroConta",
+                      "value": "1234569"
+                    },
+                    {
+                      "key": "codigoBarras",
+                      "value": "{{codigoBarras}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://sandbox.sicoob.com.br/sicoob/sandbox"
+    },
+    {
+      "key": "access_token",
+      "value": "1301865f-c6bc-38f3-9f49-666dbcfc59c3"
+    },
+    {
+      "key": "client_id",
+      "value": "9b5e603e428cc477a2841e2683c92d21"
+    },
+    {
+      "key": "chave_pix",
+      "value": "manu0019@hotmail.com"
+    },
+    {
+      "key": "txid",
+      "value": "txid-teste-001"
+    },
+    {
+      "key": "codigoBarras",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "id_pix",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "pagamento_pix",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "recebimento_pix",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "e2eid",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "id_devolucao",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "pagamento_boleto",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "recebimento_boleto",
+      "value": "",
+      "type": "default"
+    }
+  ]
+}
