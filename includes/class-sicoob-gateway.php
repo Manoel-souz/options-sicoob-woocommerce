@@ -21,6 +21,11 @@ class WC_Gateway_Sicoob extends WC_Payment_Gateway
     public $client_secret;
     public $access_token;
     public $environment;
+    // mTLS e App Key (produção)
+    public $mtls_cert_path;
+    public $mtls_key_path;
+    public $mtls_key_pass;
+    public $app_key;
 
     /**
      * Construtor
@@ -46,6 +51,11 @@ class WC_Gateway_Sicoob extends WC_Payment_Gateway
         $this->client_secret = $this->get_option('client_secret');
         $this->access_token = $this->get_option('access_token');
         $this->environment = $this->testmode ? 'sandbox' : 'production';
+        // Extras produção
+        $this->mtls_cert_path = $this->get_option('mtls_cert_path');
+        $this->mtls_key_path  = $this->get_option('mtls_key_path');
+        $this->mtls_key_pass  = $this->get_option('mtls_key_pass');
+        $this->app_key        = $this->get_option('app_key');
 
         // Hooks
         add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
@@ -189,13 +199,6 @@ class WC_Gateway_Sicoob extends WC_Payment_Gateway
                 'default' => '',
                 'desc_tip' => true,
             ),
-            'client_secret' => array(
-                'title' => __('Client Secret (Opcional)', 'sicoob-woocommerce'),
-                'type' => 'password',
-                'description' => __('Client Secret fornecido pelo Sicoob. No sandbox, pode ser deixado em branco.', 'sicoob-woocommerce'),
-                'default' => '',
-                'desc_tip' => true,
-            ),
             'access_token' => array(
                 'title' => __('Access Token (Bearer)', 'sicoob-woocommerce'),
                 'type' => 'password',
@@ -224,7 +227,81 @@ class WC_Gateway_Sicoob extends WC_Payment_Gateway
                 'default' => '',
                 'desc_tip' => true,
             ),
+            // // Token Produção via PFX
+            // // Grupo Produção (mTLS)
+            // 'mtls_section_title' => array(
+            //     'title' => __('Produção (mTLS) - obrigatório para PIX em produção', 'sicoob-woocommerce'),
+            //     'type' => 'title',
+            //     'description' => __('Informe os caminhos absolutos dos arquivos de certificado e chave do cliente fornecidos pelo Sicoob. Em sandbox, deixe em branco.', 'sicoob-woocommerce'),
+            // ),
+            // 'app_key' => array(
+            //     'title' => __('X-Developer-Application-Key (opcional)', 'sicoob-woocommerce'),
+            //     'type' => 'text',
+            //     'description' => __('Alguns ambientes exigem a chave de aplicativo do desenvolvedor.', 'sicoob-woocommerce'),
+            //     'default' => '',
+            //     'desc_tip' => true,
+            // ),
+            // 'mtls_cert_path' => array(
+            //     'title' => __('Caminho do Certificado (SSL Cert)', 'sicoob-woocommerce'),
+            //     'type' => 'text',
+            //     'description' => __('Ex.: C:/laragon/www/certs/sicoob/client_cert.pem', 'sicoob-woocommerce'),
+            //     'default' => '',
+            //     'desc_tip' => true,
+            // ),
+            // 'mtls_key_path' => array(
+            //     'title' => __('Caminho da Chave (SSL Key)', 'sicoob-woocommerce'),
+            //     'type' => 'text',
+            //     'description' => __('Ex.: C:/laragon/www/certs/sicoob/client_key.pem', 'sicoob-woocommerce'),
+            //     'default' => '',
+            //     'desc_tip' => true,
+            // ),
+            // 'mtls_key_pass' => array(
+            //     'title' => __('Senha da Chave (se houver)', 'sicoob-woocommerce'),
+            //     'type' => 'password',
+            //     'description' => __('Senha da chave privada, se protegida por senha.', 'sicoob-woocommerce'),
+            //     'default' => '',
+            //     'desc_tip' => true,
+            // ),
         );
+    }
+
+    /**
+     * Salva opções
+     */
+    public function process_admin_options()
+    {
+        parent::process_admin_options();
+    }
+
+    /**
+     * Renderiza as opções e injeta JS para exibir/ocultar blocos e botão de upload.
+     */
+    public function admin_options()
+    {
+        echo '<h2>' . esc_html($this->get_method_title()) . '</h2>';
+        echo wp_kses_post(wpautop($this->get_method_description()));
+        echo '<table class="form-table">';
+        $this->generate_settings_html();
+        echo '</table>';
+
+        // Inline JS para toggle e upload
+        ?>
+        <script>
+        (function($){
+            function toggleBlocks(){
+                var test = $('#woocommerce_<?php echo esc_js($this->id); ?>_testmode').is(':checked');
+                var accessRow = $('#woocommerce_<?php echo esc_js($this->id); ?>_access_token').closest('tr');
+                if(test){
+                    accessRow.show();
+                } else {
+                    accessRow.hide();
+                }
+            }
+            $(document).on('change', '#woocommerce_<?php echo esc_js($this->id); ?>_testmode', toggleBlocks);
+            $(toggleBlocks);
+        })(jQuery);
+        </script>
+        <?php
     }
 
     /**
@@ -245,7 +322,18 @@ class WC_Gateway_Sicoob extends WC_Payment_Gateway
 
         try {
             // Criar transação no Sicoob
-            $api = new Sicoob_API($this->client_id, $this->client_secret, $this->environment, $this->access_token);
+            $api = new Sicoob_API(
+                $this->client_id,
+                $this->client_secret,
+                $this->environment,
+                $this->access_token,
+                array(
+                    'mtls_cert_path' => (string) $this->mtls_cert_path,
+                    'mtls_key_path'  => (string) $this->mtls_key_path,
+                    'mtls_key_pass'  => (string) $this->mtls_key_pass,
+                    'app_key'        => (string) $this->app_key,
+                )
+            );
 
             // Capturar campos informados
             $payment_type = isset($_POST['sicoob_payment_type']) ? sanitize_text_field(wp_unslash($_POST['sicoob_payment_type'])) : 'pix';
@@ -377,7 +465,18 @@ class WC_Gateway_Sicoob extends WC_Payment_Gateway
             wp_send_json(array('ok' => false));
         }
         try {
-            $api = new Sicoob_API($this->client_id, $this->client_secret, $this->environment, $this->access_token);
+            $api = new Sicoob_API(
+                $this->client_id,
+                $this->client_secret,
+                $this->environment,
+                $this->access_token,
+                array(
+                    'mtls_cert_path' => (string) $this->mtls_cert_path,
+                    'mtls_key_path'  => (string) $this->mtls_key_path,
+                    'mtls_key_pass'  => (string) $this->mtls_key_pass,
+                    'app_key'        => (string) $this->app_key,
+                )
+            );
             $cob = $api->pix_obter_cobranca($txid);
             $status = $cob['status'] ?? '';
             if ($status === 'CONCLUIDA' || $status === 'approved') {

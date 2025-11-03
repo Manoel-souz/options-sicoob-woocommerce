@@ -1,0 +1,354 @@
+/**
+ * Estilos da Interface Administrativa do Sicoob
+ */
+
+/* Container Principal */
+.sicoob-admin-wrap {
+    background: #fff;
+    padding: 0;
+    margin: 20px 20px 20px 0;
+}
+
+/* Header */
+.sicoob-header {
+    background: #fff;
+    padding: 20px 30px;
+    border-bottom: 1px solid #dcdcde;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 0 20px 0;
+}
+
+.sicoob-header h1 {
+    font-size: 23px;
+    font-weight: 400;
+    margin: 0;
+    padding: 0;
+    line-height: 1.3;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sicoob-subtitle {
+    font-size: 14px;
+    color: #646970;
+    font-weight: 400;
+}
+
+/* Status Indicator */
+.sicoob-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sicoob-status-label {
+    font-size: 14px;
+    color: #1d2327;
+    font-weight: 500;
+}
+
+.sicoob-status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #d63638;
+    display: inline-block;
+}
+
+.sicoob-status-indicator.active {
+    background: #00a32a;
+    box-shadow: 0 0 8px rgba(0, 163, 42, 0.4);
+}
+
+/* Form */
+.sicoob-form {
+    padding: 0 30px 30px;
+}
+
+/* Seções */
+.sicoob-section {
+    margin-bottom: 40px;
+}
+
+.sicoob-section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 20px 0;
+    padding: 0 0 10px 0;
+    border-bottom: 2px solid #2271b1;
+    color: #1d2327;
+}
+
+/* Tabela de Formulário */
+.sicoob-form-table {
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    margin-top: 0;
+}
+
+.sicoob-form-table tbody tr {
+    border-bottom: 1px solid #f0f0f1;
+}
+
+.sicoob-form-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.sicoob-form-table th {
+    padding: 15px 20px;
+    text-align: left;
+    font-weight: 600;
+    color: #1d2327;
+    width: 200px;
+    vertical-align: middle;
+    background: #f6f7f7;
+}
+
+.sicoob-form-table td {
+    padding: 15px 20px;
+    vertical-align: middle;
+}
+
+.sicoob-form-table input[type="text"],
+.sicoob-form-table input[type="password"],
+.sicoob-form-table input[type="number"] {
+    width: 100%;
+    max-width: 400px;
+}
+
+.sicoob-form-table .large-text {
+    max-width: 100%;
+}
+
+/* Input Group (com botão) */
+.sicoob-input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.sicoob-input-group input[type="text"] {
+    flex: 1;
+}
+
+.sicoob-copy-btn {
+    padding: 6px 12px;
+    height: auto;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.sicoob-copy-btn .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.sicoob-copy-btn.copied {
+    background: #00a32a;
+    color: #fff;
+    border-color: #00a32a;
+}
+
+/* Checkbox Label */
+.sicoob-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Texto Readonly */
+.sicoob-readonly-text {
+    color: #646970;
+    font-style: italic;
+}
+
+/* API Cards */
+.sicoob-api-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.sicoob-api-card {
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.sicoob-api-header {
+    background: #f6f7f7;
+    padding: 15px 20px;
+    border-bottom: 1px solid #dcdcde;
+}
+
+.sicoob-api-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.sicoob-api-body {
+    padding: 20px;
+}
+
+.sicoob-api-url {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f6f7f7;
+    border-radius: 4px;
+}
+
+.sicoob-api-url strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #1d2327;
+}
+
+.sicoob-api-url code {
+    background: #fff;
+    padding: 8px 12px;
+    border: 1px solid #dcdcde;
+    border-radius: 3px;
+    display: inline-block;
+    font-size: 13px;
+    color: #2271b1;
+}
+
+.sicoob-api-scopes {
+    margin-top: 20px;
+}
+
+.sicoob-api-scopes > strong {
+    display: block;
+    margin-bottom: 15px;
+    color: #1d2327;
+    font-size: 14px;
+}
+
+/* Scope Items */
+.sicoob-scope-item {
+    margin-bottom: 12px;
+    padding: 12px;
+    background: #f9f9f9;
+    border-radius: 3px;
+    border-left: 3px solid #c3c4c7;
+    transition: all 0.2s ease;
+}
+
+.sicoob-scope-item:hover {
+    background: #f0f0f1;
+}
+
+.sicoob-scope-item.selected {
+    background: #e7f5ff;
+    border-left-color: #2271b1;
+}
+
+.sicoob-scope-item label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+    margin: 0;
+}
+
+.sicoob-scope-item input[type="checkbox"] {
+    margin-top: 3px;
+    flex-shrink: 0;
+}
+
+.sicoob-scope-name {
+    font-weight: 600;
+    color: #1d2327;
+    font-size: 13px;
+    min-width: 150px;
+}
+
+.sicoob-scope-description {
+    color: #646970;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* Botão Submit */
+.sicoob-form .button-primary {
+    padding: 8px 24px;
+    height: auto;
+    font-size: 14px;
+    margin-top: 20px;
+}
+
+/* Mensagens de Aviso */
+.sicoob-form .description {
+    color: #646970;
+    font-size: 13px;
+    margin-top: 8px;
+    display: block;
+}
+
+/* Responsive */
+@media screen and (max-width: 1280px) {
+    .sicoob-api-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media screen and (max-width: 782px) {
+    .sicoob-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .sicoob-form-table th,
+    .sicoob-form-table td {
+        display: block;
+        width: 100%;
+        padding: 10px 15px;
+    }
+    
+    .sicoob-form-table th {
+        padding-bottom: 5px;
+    }
+    
+    .sicoob-form-table td {
+        padding-top: 0;
+    }
+    
+    .sicoob-api-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .sicoob-scope-name {
+        min-width: auto;
+        display: block;
+        margin-bottom: 5px;
+    }
+}
+
+/* Animation para o botão copiado */
+@keyframes copied-pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.sicoob-copy-btn.copied {
+    animation: copied-pulse 0.3s ease;
+}
+
