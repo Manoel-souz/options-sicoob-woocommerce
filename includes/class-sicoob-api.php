@@ -9,6 +9,59 @@ if (!defined('ABSPATH')) {
 }
 
 /**
+ * Helper: Criar arquivo temporário (wrapper seguro para wp_tempnam)
+ * Usa wp_tempnam() se disponível, senão usa função alternativa
+ */
+function sicoob_wp_tempnam($filename = '', $dir = '') {
+    // Se wp_tempnam já existe, usar ela
+    if (function_exists('wp_tempnam')) {
+        return wp_tempnam($filename, $dir);
+    }
+    
+    // Fallback: criar função alternativa
+    if (empty($dir)) {
+        // Tentar usar get_temp_dir() do WordPress se disponível
+        if (function_exists('get_temp_dir')) {
+            $dir = get_temp_dir();
+        } else {
+            // Fallback: usar sys_get_temp_dir() do PHP
+            $dir = sys_get_temp_dir();
+            if (!empty($dir) && substr($dir, -1) !== DIRECTORY_SEPARATOR) {
+                $dir .= DIRECTORY_SEPARATOR;
+            }
+        }
+    }
+    
+    // Gerar nome único
+    if ($filename) {
+        // Limpar nome do arquivo manualmente se sanitize_file_name não estiver disponível
+        if (function_exists('sanitize_file_name')) {
+            $prefix = sanitize_file_name($filename) . '_';
+        } else {
+            // Limpeza manual básica
+            $prefix = preg_replace('/[^a-zA-Z0-9_-]/', '', $filename) . '_';
+        }
+    } else {
+        $prefix = 'tmp_';
+    }
+    $unique = uniqid($prefix, true);
+    $file = $dir . $unique . '.tmp';
+    
+    // Criar arquivo vazio
+    if (@touch($file)) {
+        return $file;
+    }
+    
+    // Fallback: usar tempnam() nativo do PHP
+    $temp = @tempnam($dir, $prefix);
+    if ($temp !== false) {
+        return $temp;
+    }
+    
+    return false;
+}
+
+/**
  * Classe Sicoob_API
  */
 class Sicoob_API
@@ -28,6 +81,24 @@ class Sicoob_API
     private $pfx_file_url;
     private $pfx_password;
     private $base_url_pagamentos; // URL base para endpoints de pagamentos (boletos)
+    private $pix_base; // Base path para endpoints PIX
+
+    /**
+     * Logar em wp-content/debug.log com marcação SICOOB
+     */
+    private function sicoob_debug_log($label, $data = null)
+    {
+        $path = trailingslashit(WP_CONTENT_DIR) . 'debug.log';
+        $line = '[' . date('Y-m-d H:i:s') . "] [SICOOB][" . $label . "] ";
+        if ($data !== null) {
+            if (is_array($data) || is_object($data)) {
+                $line .= json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+            } else {
+                $line .= (string) $data;
+            }
+        }
+        @file_put_contents($path, $line . PHP_EOL, FILE_APPEND);
+    }
 
     /**
      * Construtor
@@ -53,16 +124,19 @@ class Sicoob_API
         if ($environment === 'sandbox') {
             $this->base_url = 'https://sandbox.sicoob.com.br/sicoob/sandbox';
             $this->base_url_pagamentos = 'https://sandbox.sicoob.com.br/sicoob/sandbox/pagamentos/v3';
+            $this->pix_base = '/pix/api/v2';
         } else {
             $this->base_url = 'https://api.sicoob.com.br';
             $this->base_url_pagamentos = 'https://api.sicoob.com.br/pagamentos/v3';
+            $this->pix_base = '/pix/api/v2';
         }
 
         // Para sandbox, não usamos OAuth; utilizamos Bearer Token direto
 
         // Em produção, PIX exige mTLS. Anexa certificados via cURL quando configurados.
         if ($this->environment === 'production') {
-            add_action('http_api_curl', array($this, 'inject_mtls'), 10, 3);
+            // Hook removido - sempre usando Guzzle agora
+            // add_action('http_api_curl', array($this, 'inject_mtls'), 10, 3);
         }
     }
 
@@ -100,7 +174,20 @@ class Sicoob_API
     private function resolve_pfx_raw_and_pass()
     {
         $raw = '';
-        $pass = $this->pfx_password ?: $this->decrypt_secret_compat(get_option('sicoob_pfx_password_enc'));
+        // Prioridade: 1) Senha do código (SICOOB_PFX_PASSWORD), 2) Senha passada via extras, 3) Senha do banco, 4) Constante SICOOB_MTLS_KEYPASS
+        $pass = '';
+        if (defined('SICOOB_PFX_PASSWORD')) {
+            $pfx_pass_const = constant('SICOOB_PFX_PASSWORD');
+            if (!empty($pfx_pass_const)) {
+                $pass = $pfx_pass_const;
+            }
+        }
+        if (!$pass && $this->pfx_password) {
+            $pass = $this->pfx_password;
+        }
+        if (!$pass && get_option('sicoob_pfx_password_enc')) {
+            $pass = $this->decrypt_secret_compat(get_option('sicoob_pfx_password_enc'));
+        }
         if (!$pass && defined('SICOOB_MTLS_KEYPASS')) {
             $pass = SICOOB_MTLS_KEYPASS;
         }
@@ -113,9 +200,69 @@ class Sicoob_API
 
         // 2) Arquivo fixo no diretório raiz do plugin
         if (!$raw && defined('SICOOB_WC_PLUGIN_PATH')) {
-            $fixed = SICOOB_WC_PLUGIN_PATH . 'MUNDIAL HOSPITALAR PRODUTOS PARA SAUDE LTDA - 08002459000489.pfx';
-            if (file_exists($fixed)) {
+            // Prioridade 1: Envios.pfx (arquivo principal para requisições)
+            $fixed = SICOOB_WC_PLUGIN_PATH . 'Envios.pfx';
+            
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('[SICOOB][DEBUG] Verificando arquivo PFX: ' . $fixed);
+                error_log('[SICOOB][DEBUG] Arquivo existe: ' . (file_exists($fixed) ? 'SIM' : 'NÃO'));
+                if (file_exists($fixed)) {
+                    error_log('[SICOOB][DEBUG] Tamanho do arquivo: ' . filesize($fixed) . ' bytes');
+                    error_log('[SICOOB][DEBUG] Permissões do arquivo: ' . substr(sprintf('%o', fileperms($fixed)), -4));
+                    error_log('[SICOOB][DEBUG] Arquivo é legível: ' . (is_readable($fixed) ? 'SIM' : 'NÃO'));
+                }
+            }
+            
+            if (file_exists($fixed) && is_readable($fixed)) {
                 $raw = file_get_contents($fixed);
+                if ($raw === false) {
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log('[SICOOB][ERRO] Falha ao ler conteúdo do arquivo PFX: ' . $fixed);
+                    }
+                    $raw = '';
+                } else {
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log('[SICOOB][DEBUG] Arquivo PFX lido com sucesso. Tamanho: ' . strlen($raw) . ' bytes');
+                        error_log('[SICOOB][DEBUG] Senha do PFX: ' . (!empty($pass) ? 'CONFIGURADA (' . strlen($pass) . ' caracteres)' : 'NÃO CONFIGURADA'));
+                        
+                        // Tentar validar o certificado se OpenSSL estiver disponível
+                        if (function_exists('openssl_pkcs12_read') && !empty($pass)) {
+                            $certs = array();
+                            $valid = @openssl_pkcs12_read($raw, $certs, $pass);
+                            if ($valid) {
+                                error_log('[SICOOB][DEBUG] Certificado PFX validado com sucesso via OpenSSL');
+                                if (isset($certs['cert'])) {
+                                    $cert_info = openssl_x509_parse($certs['cert']);
+                                    if ($cert_info) {
+                                        error_log('[SICOOB][DEBUG] Certificado CN: ' . (isset($cert_info['subject']['CN']) ? $cert_info['subject']['CN'] : 'N/A'));
+                                        error_log('[SICOOB][DEBUG] Certificado válido até: ' . (isset($cert_info['validTo_time_t']) ? date('Y-m-d H:i:s', $cert_info['validTo_time_t']) : 'N/A'));
+                                        if (isset($cert_info['validTo_time_t']) && $cert_info['validTo_time_t'] < time()) {
+                                            error_log('[SICOOB][AVISO] Certificado PFX EXPIRADO!');
+                                        }
+                                    }
+                                }
+                            } else {
+                                $openssl_error = openssl_error_string();
+                                error_log('[SICOOB][ERRO] Falha ao validar certificado PFX via OpenSSL: ' . ($openssl_error ?: 'Senha incorreta ou arquivo corrompido'));
+                            }
+                        } else {
+                            if (empty($pass)) {
+                                error_log('[SICOOB][AVISO] Senha do PFX não configurada - validação via OpenSSL não será possível');
+                            }
+                            if (!function_exists('openssl_pkcs12_read')) {
+                                error_log('[SICOOB][AVISO] OpenSSL não disponível - validação do certificado não será possível');
+                            }
+                        }
+                    }
+                }
+            } else {
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    if (!file_exists($fixed)) {
+                        error_log('[SICOOB][ERRO] Arquivo PFX não encontrado: ' . $fixed);
+                    } elseif (!is_readable($fixed)) {
+                        error_log('[SICOOB][ERRO] Arquivo PFX existe mas não é legível: ' . $fixed);
+                    }
+                }
             }
         }
 
@@ -156,39 +303,148 @@ class Sicoob_API
         if (strpos($url, $this->base_url) !== 0) {
             return;
         }
-        // 1) Preferir PFX (blob/URL/arquivo raiz do plugin)
+        
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[SICOOB][mTLS] inject_mtls chamado para URL: ' . $url);
+        }
+        
+        // 1) PRIORIDADE: Verificar se existem arquivos PEM no diretório do plugin
+        $pem_cert = '';
+        $pem_key = '';
+        if (defined('SICOOB_WC_PLUGIN_PATH')) {
+            // Verificar certificado.pem (completo) ou certificado_publico.pem
+            $cert_completo = SICOOB_WC_PLUGIN_PATH . 'certificado.pem';
+            $cert_publico = SICOOB_WC_PLUGIN_PATH . 'certificado_publico.pem';
+            $key_privada = SICOOB_WC_PLUGIN_PATH . 'chave_privada.pem';
+            
+            if (file_exists($cert_completo)) {
+                // Certificado completo (cert + key juntos)
+                $pem_cert = $cert_completo;
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('[SICOOB][mTLS] Usando certificado.pem (completo): ' . $cert_completo);
+                }
+            } elseif (file_exists($cert_publico) && file_exists($key_privada)) {
+                // Certificado e chave separados
+                $pem_cert = $cert_publico;
+                $pem_key = $key_privada;
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('[SICOOB][mTLS] Usando certificado_publico.pem: ' . $cert_publico);
+                    error_log('[SICOOB][mTLS] Usando chave_privada.pem: ' . $key_privada);
+                }
+            }
+        }
+        
+        // Se encontrou PEM, usar diretamente
+        if ($pem_cert && file_exists($pem_cert)) {
+            if ($pem_key && file_exists($pem_key)) {
+                // Certificado e chave separados
+                @curl_setopt($handle, CURLOPT_SSLCERT, $pem_cert);
+                @curl_setopt($handle, CURLOPT_SSLKEY, $pem_key);
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('[SICOOB][mTLS] Certificado PEM aplicado (cert + key separados)');
+                    error_log('[SICOOB][mTLS] CERT: ' . $pem_cert);
+                    error_log('[SICOOB][mTLS] KEY: ' . $pem_key);
+                }
+            } else {
+                // Certificado completo (cert + key juntos)
+                @curl_setopt($handle, CURLOPT_SSLCERT, $pem_cert);
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('[SICOOB][mTLS] Certificado PEM completo aplicado: ' . $pem_cert);
+                }
+            }
+            
+            // Senha se necessário
+            $pwd = $this->mtls_key_pass ?: (defined('SICOOB_MTLS_KEYPASS') ? SICOOB_MTLS_KEYPASS : '');
+            if ($pwd) {
+                @curl_setopt($handle, CURLOPT_KEYPASSWD, $pwd);
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('[SICOOB][mTLS] Senha do certificado PEM configurada');
+                }
+            }
+            
+            return; // Já configurado via PEM
+        }
+        
+        // 2) Fallback: Preferir PFX (blob/URL/arquivo raiz do plugin)
         list($raw, $pass) = $this->resolve_pfx_raw_and_pass();
+        
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[SICOOB][mTLS] PFX raw obtido: ' . (!empty($raw) ? 'SIM (' . strlen($raw) . ' bytes)' : 'NÃO'));
+            error_log('[SICOOB][mTLS] Senha obtida: ' . (!empty($pass) ? 'SIM (' . strlen($pass) . ' caracteres)' : 'NÃO'));
+        }
+        
         if ($raw && !$this->tmp_pfx_path) {
             $this->tmp_pfx_path = wp_tempnam('sicoob_pfx_runtime');
             if ($this->tmp_pfx_path) {
-                file_put_contents($this->tmp_pfx_path, $raw);
+                $written = file_put_contents($this->tmp_pfx_path, $raw);
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('[SICOOB][mTLS] Arquivo temporário PFX criado: ' . $this->tmp_pfx_path);
+                    error_log('[SICOOB][mTLS] Bytes escritos no arquivo temporário: ' . $written);
+                }
                 add_action('shutdown', function(){
                     if (file_exists($this->tmp_pfx_path)) { @unlink($this->tmp_pfx_path); }
                 });
                 $this->mtls_key_pass = $this->mtls_key_pass ?: $pass;
+            } else {
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('[SICOOB][mTLS][ERRO] Falha ao criar arquivo temporário para PFX');
+                }
             }
         }
+        
         if ($this->tmp_pfx_path && file_exists($this->tmp_pfx_path)) {
-            @curl_setopt($handle, CURLOPT_SSLCERT, $this->tmp_pfx_path);
-            @curl_setopt($handle, CURLOPT_SSLCERTTYPE, 'P12');
-            if ($this->mtls_key_pass) {
-                @curl_setopt($handle, CURLOPT_SSLCERTPASSWD, $this->mtls_key_pass);
+            $result1 = @curl_setopt($handle, CURLOPT_SSLCERT, $this->tmp_pfx_path);
+            $result2 = @curl_setopt($handle, CURLOPT_SSLCERTTYPE, 'P12');
+            
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('[SICOOB][mTLS] CURLOPT_SSLCERT definido: ' . ($result1 ? 'SIM' : 'NÃO') . ' - Arquivo: ' . $this->tmp_pfx_path);
+                error_log('[SICOOB][mTLS] CURLOPT_SSLCERTTYPE definido: ' . ($result2 ? 'SIM' : 'NÃO') . ' - Tipo: P12');
             }
+            
+            if ($this->mtls_key_pass) {
+                $result3 = @curl_setopt($handle, CURLOPT_SSLCERTPASSWD, $this->mtls_key_pass);
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('[SICOOB][mTLS] CURLOPT_SSLCERTPASSWD definido: ' . ($result3 ? 'SIM' : 'NÃO') . ' - Senha: ' . strlen($this->mtls_key_pass) . ' caracteres');
+                }
+            } else {
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('[SICOOB][mTLS][AVISO] Senha do certificado não configurada - CURLOPT_SSLCERTPASSWD não será definido');
+                }
+            }
+            
+            // Verificar se o certificado foi configurado corretamente
+            $cert_value = @curl_getinfo($handle, CURLINFO_CERTINFO);
             if (defined('WP_DEBUG') && WP_DEBUG) {
                 error_log('[SICOOB][mTLS] Certificado PFX aplicado ao request: ' . $this->tmp_pfx_path);
+                error_log('[SICOOB][mTLS] Tamanho do arquivo temporário: ' . filesize($this->tmp_pfx_path) . ' bytes');
             }
+            
             return; // Já configurado via PFX
+        } else {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('[SICOOB][mTLS][ERRO] Arquivo temporário PFX não disponível ou não existe');
+                if ($this->tmp_pfx_path) {
+                    error_log('[SICOOB][mTLS][ERRO] Caminho do arquivo temporário: ' . $this->tmp_pfx_path);
+                    error_log('[SICOOB][mTLS][ERRO] Arquivo existe: ' . (file_exists($this->tmp_pfx_path) ? 'SIM' : 'NÃO'));
+                }
+            }
         }
 
-        // 2) Fallback para PEM + KEY se informados nas opções/constantes
+        // 3) Fallback final: PEM + KEY se informados nas opções/constantes
         $cert = $this->mtls_cert_path ?: (defined('SICOOB_MTLS_CERT') ? SICOOB_MTLS_CERT : '');
         $key  = $this->mtls_key_path ?: (defined('SICOOB_MTLS_KEY') ? SICOOB_MTLS_KEY : '');
         $pwd  = $this->mtls_key_pass ?: (defined('SICOOB_MTLS_KEYPASS') ? SICOOB_MTLS_KEYPASS : '');
         if ($cert && file_exists($cert)) {
             @curl_setopt($handle, CURLOPT_SSLCERT, $cert);
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('[SICOOB][mTLS] Certificado via constante SICOOB_MTLS_CERT: ' . $cert);
+            }
         }
         if ($key && file_exists($key)) {
             @curl_setopt($handle, CURLOPT_SSLKEY, $key);
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('[SICOOB][mTLS] Chave via constante SICOOB_MTLS_KEY: ' . $key);
+            }
         }
         if ($pwd) {
             @curl_setopt($handle, CURLOPT_KEYPASSWD, $pwd);
@@ -214,6 +470,8 @@ class Sicoob_API
                 if (defined('WP_DEBUG') && WP_DEBUG) error_log(implode("\n", $debug_log));
                 return $this->access_token;
             }
+
+        
             $debug_log[] = '[SICOOB][ERRO] Access Token do sandbox não configurado.';
             if (defined('WP_DEBUG') && WP_DEBUG) error_log(implode("\n", $debug_log));
             throw new Exception('Access Token do sandbox não configurado. Informe o token nas configurações do gateway.');
@@ -233,12 +491,13 @@ class Sicoob_API
         }
         $debug_log[] = "[SICOOB] Cache de token vazio ou expirado (key: {$cache_key})";
 
-        // Prepara arquivo PFX temporário SEMPRE a partir do arquivo fixo na raiz do plugin
+        // Prepara arquivo PFX temporário a partir do arquivo fixo na raiz do plugin (prioridade: Envios.pfx)
         list($raw_from_root, $pass_from_root) = $this->resolve_pfx_raw_and_pass();
         $pfx_pass = $pass_from_root;
         $tmp_pfx = '';
         if ($raw_from_root) {
-            $tmp_pfx = wp_tempnam('sicoob_pfx_root');
+            // Usar wrapper compatível que cai para tempnam se wp_tempnam não existir
+            $tmp_pfx = sicoob_wp_tempnam('sicoob_pfx_root');
             if ($tmp_pfx) {
                 file_put_contents($tmp_pfx, $raw_from_root);
                 $debug_log[] = "[SICOOB] PFX da raiz do plugin carregado em: {$tmp_pfx}";
@@ -247,7 +506,13 @@ class Sicoob_API
             }
         } else {
             if (defined('SICOOB_WC_PLUGIN_PATH')) {
-                $debug_log[] = '[SICOOB][ERRO] PFX não encontrado na raiz do plugin: ' . SICOOB_WC_PLUGIN_PATH;
+                $envios_pfx = SICOOB_WC_PLUGIN_PATH . 'Envios.pfx';
+                $debug_log[] = '[SICOOB][ERRO] PFX não encontrado na raiz do plugin. Verificando: ' . $envios_pfx;
+                if (file_exists($envios_pfx)) {
+                    $debug_log[] = '[SICOOB][INFO] Arquivo Envios.pfx existe, mas não foi possível ler.';
+                } else {
+                    $debug_log[] = '[SICOOB][ERRO] Arquivo Envios.pfx não encontrado em: ' . SICOOB_WC_PLUGIN_PATH;
+                }
             } else {
                 $debug_log[] = '[SICOOB][ERRO] Constante SICOOB_WC_PLUGIN_PATH não definida.';
             }
@@ -287,12 +552,28 @@ class Sicoob_API
             $debug_log[] = "[SICOOB] Enviando certificado PFX: {$tmp_pfx}";
             if ($pfx_pass) {
                 curl_setopt($ch, CURLOPT_SSLCERTPASSWD, $pfx_pass);
-                $debug_log[] = '[SICOOB] Password do PFX informado.';
+                $debug_log[] = '[SICOOB] Password do PFX informado (tamanho: ' . strlen($pfx_pass) . ' caracteres).';
+                
+                // Tentar validar o certificado antes de usar (se OpenSSL estiver disponível)
+                if (function_exists('openssl_pkcs12_read')) {
+                    $pfx_content = file_get_contents($tmp_pfx);
+                    $certs = array();
+                    $valid = @openssl_pkcs12_read($pfx_content, $certs, $pfx_pass);
+                    if (!$valid) {
+                        $debug_log[] = '[SICOOB][AVISO] Falha ao validar PFX com OpenSSL antes do envio. Continuando mesmo assim...';
+                    } else {
+                        $debug_log[] = '[SICOOB] PFX validado com sucesso usando OpenSSL.';
+                    }
+                }
             } else {
                 $debug_log[] = '[SICOOB][ERRO] Password do PFX não foi informado ou não conseguido descriptografar.';
+                if (defined('WP_DEBUG') && WP_DEBUG) error_log(implode("\n", $debug_log));
+                throw new Exception('Senha do certificado PFX não configurada. Configure a senha do certificado nas opções do plugin.');
             }
         } else {
             $debug_log[] = '[SICOOB][ERRO] Não foi enviado certificado SSL (PFX não disponível)';
+            if (defined('WP_DEBUG') && WP_DEBUG) error_log(implode("\n", $debug_log));
+            throw new Exception('Certificado PFX não encontrado. Verifique se o arquivo Envios.pfx está no diretório do plugin ou configurado corretamente.');
         }
 
         $resp = curl_exec($ch);
@@ -312,6 +593,12 @@ class Sicoob_API
         }
 
         if ($err) {
+            // Detectar erro específico de PKCS12
+            if (stripos($err, 'PKCS12') !== false || stripos($err, 'mac verify failure') !== false) {
+                $debug_log[] = '[SICOOB][ERRO PKCS12] Erro ao validar senha do certificado PFX. Verifique a senha configurada.';
+                if (defined('WP_DEBUG') && WP_DEBUG) error_log(implode("\n", $debug_log));
+                throw new Exception('Erro ao validar certificado PFX: A senha do certificado está incorreta ou o arquivo está corrompido. Verifique a senha configurada nas opções do plugin.');
+            }
             if (defined('WP_DEBUG') && WP_DEBUG) error_log(implode("\n", $debug_log));
             throw new Exception('Erro ao obter token (cURL): ' . $err);
         }
@@ -336,41 +623,172 @@ class Sicoob_API
     }
 
     /**
+     * Fazer requisição usando Guzzle com mTLS (se disponível)
+     */
+    private function make_request_guzzle($url, $method, $data, $expect_json, $headers)
+    {
+        if (!class_exists('GuzzleHttp\\Client')) {
+            throw new Exception('Guzzle não está disponível');
+        }
+
+        // PRIORIDADE 1: Verificar se existem arquivos PEM
+        $pem_cert = '';
+        $pem_key = '';
+        $cert_config = null;
+        
+        if (defined('SICOOB_WC_PLUGIN_PATH')) {
+            $cert_completo = SICOOB_WC_PLUGIN_PATH . 'certificado.pem';
+            $cert_publico = SICOOB_WC_PLUGIN_PATH . 'certificado_publico.pem';
+            $key_privada = SICOOB_WC_PLUGIN_PATH . 'chave_privada.pem';
+            
+            if (file_exists($cert_completo)) {
+                // Certificado completo (cert + key juntos)
+                $cert_config = $cert_completo;
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('[SICOOB][Guzzle] Usando certificado.pem (completo): ' . $cert_completo);
+                }
+            } elseif (file_exists($cert_publico) && file_exists($key_privada)) {
+                // Certificado e chave separados - Guzzle precisa do array
+                $cert_config = [$cert_publico, $key_privada];
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('[SICOOB][Guzzle] Usando certificado_publico.pem + chave_privada.pem');
+                }
+            }
+        }
+        
+        // PRIORIDADE 2: Fallback para PFX
+        if (!$cert_config) {
+            list($pfx_raw, $pfx_pass) = $this->resolve_pfx_raw_and_pass();
+            if (!$pfx_raw) {
+                throw new Exception('Certificado PFX não encontrado. Coloque o Envios.pfx na raiz do plugin.');
+            }
+
+            $tmp_pfx = wp_tempnam('sicoob_pfx_guzzle');
+            if (!$tmp_pfx) {
+                throw new Exception('Falha ao criar arquivo temporário do certificado.');
+            }
+            file_put_contents($tmp_pfx, $pfx_raw);
+            // Remover no shutdown
+            add_action('shutdown', function() use ($tmp_pfx) {
+                if (file_exists($tmp_pfx)) { @unlink($tmp_pfx); }
+            });
+
+            $cert_config = [$tmp_pfx, (string) $pfx_pass]; // P12 com senha
+            
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('[SICOOB][Guzzle] Preparando mTLS (PFX) e enviando via Guzzle: ' . $url);
+            }
+        } else {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('[SICOOB][Guzzle] Preparando mTLS (PEM) e enviando via Guzzle: ' . $url);
+            }
+        }
+
+        $client = new \GuzzleHttp\Client([
+            'timeout' => 30,
+            'verify' => true,
+            'http_errors' => false,
+            'cert' => $cert_config,
+        ]);
+
+        $options = [ 'headers' => [] ];
+        // Converter headers estilo array("Key: value") para assoc array
+        foreach ($headers as $h) {
+            $parts = explode(':', $h, 2);
+            if (count($parts) === 2) {
+                $options['headers'][trim($parts[0])] = trim($parts[1]);
+            }
+        }
+
+        $method = strtoupper($method);
+        if ($data && in_array($method, array('POST','PUT','PATCH'), true)) {
+            // Se Content-Type application/json, usar json; caso contrário, body cru
+            $ct = isset($options['headers']['Content-Type']) ? strtolower($options['headers']['Content-Type']) : '';
+            if (strpos($ct, 'application/json') !== false) {
+                $options['json'] = $data;
+            } else {
+                $options['body'] = is_string($data) ? $data : json_encode($data);
+            }
+        }
+
+        $response = $client->request($method, $url, $options);
+        $status = $response->getStatusCode();
+        $body = (string) $response->getBody();
+
+        // Logar resposta sempre em debug.log (status, headers e body)
+        $this->sicoob_debug_log('HTTP RESPONSE', array(
+            'url' => $url,
+            'status' => $status,
+            'headers' => $response->getHeaders(),
+            'body' => $expect_json ? (json_decode($body, true) ?? substr($body, 0, 1000)) : substr($body, 0, 1000),
+        ));
+
+        if ($status >= 400) {
+            // Tentar parsear o JSON para extrair title e detail
+            $error_data = json_decode($body, true);
+            if ($error_data && isset($error_data['title']) && isset($error_data['detail'])) {
+                throw new Exception($error_data['title'] . '|' . $error_data['detail']);
+            }
+            // Fallback: se não conseguir parsear, usar o corpo completo
+            throw new Exception('Erro na API do Sicoob (HTTP ' . $status . '): ' . $body);
+        }
+
+        // WAF pode retornar HTML com 200
+        if ($status === 200 && is_string($body) && stripos($body, 'Request Rejected') !== false) {
+            throw new Exception('Requisição bloqueada pelo WAF do Sicoob. Verifique headers e endpoint.');
+        }
+
+        return $expect_json ? json_decode($body, true) : $body;
+    }
+
+    /**
      * Fazer requisição para a API
      * @param bool $use_pagamentos_base Se true, usa base_url_pagamentos (para boletos)
      */
-    private function make_request($endpoint, $method = 'GET', $data = null, $expect_json = true, $extra_headers = array(), $use_auth = true, $use_pagamentos_base = false, $header_mode = 'default')
+	private function make_request($endpoint, $method = 'GET', $data = null, $expect_json = true, $extra_headers = array(), $use_auth = true, $use_pagamentos_base = false, $header_mode = 'default')
     {
         $base = $use_pagamentos_base ? $this->base_url_pagamentos : $this->base_url;
         $url = $base . $endpoint;
 
+        // Preparar corpo (quando aplicável)
+        $body_string = '';
+        if ($data && in_array($method, array('POST', 'PUT', 'PATCH'))) {
+            $body_string = json_encode($data);
+        }
+
         // Montagem de headers (modo padrão ou mínimo)
         if ($header_mode === 'minimal') {
-            // Somente o essencial pedido: Accept, Content-Type, client_id e Authorization
+            // Essenciais, conforme a chamada que funcionou externamente (Accept, Content-Type, client_id, Authorization)
             $headers = array(
-                'Content-Type: application/json',
                 'Accept: application/json',
                 'client_id: ' . $this->client_id,
+                'Authorization: Bearer ' . ($use_auth ? $this->get_access_token() : ''),
+                'Content-Type: application/json',
             );
-            if ($use_auth) {
-                $headers[] = 'Authorization: Bearer ' . $this->get_access_token();
+            // Remover Authorization vazio caso $use_auth seja false
+            if (!$use_auth) {
+                $headers = array_values(array_filter($headers, function ($h) { return strpos($h, 'Authorization:') !== 0; }));
+            }
+            // App Key opcional (se o WAF exigir)
+            $appKey = $this->app_key ?: (defined('SICOOB_APP_KEY') ? SICOOB_APP_KEY : '');
+            if ($appKey) {
+                $headers[] = 'X-Developer-Application-Key: ' . $appKey;
             }
         } else {
+            // Padrão: mesmo conjunto de headers essenciais
             $headers = array(
-                'Content-Type: application/json',
                 'Accept: application/json',
-                // Enviar identificadores em todas as chamadas conforme requisito
-                'client_id: ' . $this->client_id
+                'client_id: ' . $this->client_id,
+                'Authorization: Bearer ' . ($use_auth ? $this->get_access_token() : ''),
+                'Content-Type: application/json',
             );
-            
-            // Authorization header (opcional, conforme documentação)
-            if ($use_auth) {
-                $headers[] = 'Authorization: Bearer ' . $this->get_access_token();
+            if (!$use_auth) {
+                $headers = array_values(array_filter($headers, function ($h) { return strpos($h, 'Authorization:') !== 0; }));
             }
+            // Em produção não se usa client_secret; mantemos apenas se explicitamente definido
             if (!empty($this->client_secret)) {
                 $headers[] = 'client_secret: ' . $this->client_secret;
             }
-            // Chave de app (se o WAF exigir), configure SICOOB_APP_KEY no wp-config.php
             $appKey = $this->app_key ?: (defined('SICOOB_APP_KEY') ? SICOOB_APP_KEY : '');
             if ($appKey) {
                 $headers[] = 'X-Developer-Application-Key: ' . $appKey;
@@ -379,6 +797,17 @@ class Sicoob_API
         if (!empty($extra_headers)) {
             $headers = array_merge($headers, $extra_headers);
         }
+
+        // Debug de pré-envio (sempre em debug.log)
+        $calculated_host = parse_url($url, PHP_URL_HOST);
+        $calculated_len  = ($data && in_array($method, array('POST','PUT','PATCH'))) ? strlen($body_string) : 0; // bytes
+        $this->sicoob_debug_log('HTTP REQUEST', array(
+            'url' => $url,
+            'method' => $method,
+            'headers' => $headers,
+            'calculated' => array('Host' => $calculated_host, 'Content-Length' => $calculated_len . ' bytes'),
+            'body' => !empty($body_string) ? json_decode($body_string, true) ?? $body_string : null,
+        ));
 
         $args = array(
             'method' => $method,
@@ -389,65 +818,58 @@ class Sicoob_API
         );
 
         if ($data && in_array($method, array('POST', 'PUT', 'PATCH'))) {
-            $args['body'] = json_encode($data);
+            $args['body'] = $body_string;
         }
 
-        $response = wp_remote_request($url, $args);
+		// SEMPRE usar Guzzle - não mais fallback para wp_remote_request
+		if (!class_exists('GuzzleHttp\\Client')) {
+			throw new Exception('Guzzle não está disponível. Instale o Guzzle via Composer: composer require guzzlehttp/guzzle');
+		}
 
-        if (is_wp_error($response)) {
-            throw new Exception('Erro na requisição: ' . $response->get_error_message());
-        }
+        $this->sicoob_debug_log('HTTP SEND', array('url' => $url));
 
-        $status_code = wp_remote_retrieve_response_code($response);
-        $body = wp_remote_retrieve_body($response);
-        $response_data = $expect_json ? json_decode($body, true) : $body;
-
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('Sicoob_API Debug:');
-            error_log('URL: ' . print_r($url, true));
-            error_log('Headers: ' . print_r($headers, true));
-            error_log('Corpo enviado: ' . print_r(json_encode($args, JSON_PRETTY_PRINT), true));
-            error_log('status_code: ' . print_r($status_code, true));
-            error_log('body: ' . print_r($body, true));
-            error_log('response_data: ' . print_r($response_data, true));
-        }
-
-        // Alguns gateways do Sicoob podem responder 200 com página HTML de WAF
-        $content_type = wp_remote_retrieve_header($response, 'content-type');
-        if ($status_code === 200 && is_string($body) && stripos($body, 'Request Rejected') !== false) {
-            throw new Exception('Requisição bloqueada pelo WAF do Sicoob. Verifique headers (client_id, Authorization) e o caminho do endpoint.');
-        }
-        if ($status_code >= 400) {
-            if ($expect_json) {
-                $error_message = isset($response_data['message']) ? $response_data['message'] : 'Erro na API do Sicoob';
-            } else {
-                $error_message = 'Erro na API do Sicoob (conteúdo não-JSON)';
-            }
-            // Incluir corpo bruto para facilitar o debug
-            throw new Exception($error_message . ' (HTTP ' . $status_code . '): ' . $body);
-        }
-
-        return $response_data;
+        $result = $this->make_request_guzzle($url, $method, ($args['body'] ?? $data), $expect_json, $headers);
+        // Resultado bruto já foi tratado por make_request_guzzle; só registrar que concluiu
+        $this->sicoob_debug_log('HTTP DONE', array('url' => $url));
+        return $result;
     }
 
     /**
-     * PIX - Criar cobrança imediata (POST /pix/api/v2/cob?txid={txid})
+     * PIX - Criar cobrança imediata (POST {{base_url}}/{{pix_base}}/cob?txid={txid})
      */
     public function pix_criar_cobranca_imediata($txid, $valor_original, $nome_devedor, $documento_devedor, $chave_pix, $expiracao = 3600)
     {
-        // Usar o formato com query string conforme solicitado: /cob?txid=...
-        $endpoint = '/pix/api/v2/cob?txid=' . rawurlencode($txid);
+        // Usar o formato com query string conforme solicitado: {{pix_base}}/cob?txid=...
+        $endpoint = $this->pix_base . '/cob?txid=' . rawurlencode($txid);
 
         $devedor = array('nome' => $nome_devedor);
         $documento_devedor = preg_replace('/\D+/', '', (string) $documento_devedor);
-        if (strlen($documento_devedor) === 14) {
+        
+        // Detectar se é CPF (11 dígitos) ou CNPJ (14 dígitos)
+        if (strlen($documento_devedor) === 11) {
+            // É CPF
+            $devedor['cpf'] = $documento_devedor;
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('[SICOOB][PIX] Documento detectado como CPF: ' . $documento_devedor);
+            }
+        } elseif (strlen($documento_devedor) === 14) {
+            // É CNPJ
             $devedor['cnpj'] = $documento_devedor;
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('[SICOOB][PIX] Documento detectado como CNPJ: ' . $documento_devedor);
+            }
         } else {
-            throw new Exception('CNPJ inválido. Informe um CNPJ com 14 dígitos.');
+            // Se não tiver 11 ou 14 dígitos, tentar como CNPJ (comportamento padrão)
+            $devedor['cnpj'] = $documento_devedor;
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('[SICOOB][PIX] Documento com tamanho inválido (' . strlen($documento_devedor) . ' dígitos), enviando como CNPJ: ' . $documento_devedor);
+            }
         }
 
         $data = array(
-            'calendario' => array('expiracao' => (int) $expiracao),
+            'calendario' => array(
+                'expiracao' => (int) $expiracao
+            ),
             'devedor' => $devedor,
             'valor' => array(
                 'original' => strval(number_format((float) $valor_original, 2, '.', '')),
@@ -459,31 +881,124 @@ class Sicoob_API
 
         // Headers mínimos (sem Accept-Language, client_secret, app key)
         $extra_headers = array();
-        return $this->make_request($endpoint, 'POST', $data, true, $extra_headers, true, false, 'minimal');
+        $response = $this->make_request($endpoint, 'POST', $data, true, $extra_headers, true, false, 'minimal');
+        
+        // Log da resposta completa para debug
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[SICOOB][PIX] Resposta da criação de cobrança: ' . json_encode($response, JSON_PRETTY_PRINT));
+        }
+        
+        // Validar campos obrigatórios na resposta
+        if (empty($response)) {
+            throw new Exception('Resposta vazia da API ao criar cobrança PIX.');
+        }
+        
+        // Garantir que os campos essenciais estão presentes
+        if (!isset($response['status'])) {
+            throw new Exception('Resposta inválida da API: campo "status" não encontrado.');
+        }
+        
+        if (!isset($response['txid'])) {
+            throw new Exception('Resposta inválida da API: campo "txid" não encontrado.');
+        }
+        
+        return $response;
     }
 
     /**
-     * PIX - Consultar cobrança (POST /pix/api/v2/cob?txid={txid})
+     * PIX - Consultar cobrança por TXID
+     * Documentação: GET {{base_url}}/{{pix_base}}/cob/{txid}
      */
-    public function pix_obter_cobranca($txid)
+    public function pix_obter_cobranca($txid, $revisao = null)
     {
-        // Consultar no formato com query string
-        $endpoint = '/pix/api/v2/cob?txid=' . rawurlencode($txid);
-        return $this->make_request($endpoint, 'POST', null, true, array(), true, false, 'minimal');
+        // Endpoint correto para consulta por TXID (sem corpo)
+        // Não utilizar parâmetro de revisão
+        $endpoint = $this->pix_base . '/cob/' . rawurlencode($txid);
+        
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[SICOOB][PIX][DEBUG] Consultando cobrança por TXID: ' . $txid);
+            error_log('[SICOOB][PIX][DEBUG] Endpoint: ' . $endpoint);
+            error_log('[SICOOB][PIX][DEBUG] URL completa: ' . $this->base_url . $endpoint);
+        }
+        
+        $response = $this->make_request($endpoint, 'GET', null, true, array(), true, false, 'minimal');
+        
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[SICOOB][PIX][DEBUG] Resposta da consulta de cobrança:');
+            error_log('[SICOOB][PIX][DEBUG] Status: ' . (isset($response['status']) ? $response['status'] : 'NÃO ENCONTRADO'));
+            error_log('[SICOOB][PIX][DEBUG] Resposta completa: ' . json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            if (isset($response['txid'])) {
+                error_log('[SICOOB][PIX][DEBUG] TXID retornado: ' . $response['txid']);
+            }
+            if (isset($response['calendario'])) {
+                error_log('[SICOOB][PIX][DEBUG] Calendário: ' . json_encode($response['calendario'], JSON_UNESCAPED_UNICODE));
+            }
+            if (isset($response['valor'])) {
+                error_log('[SICOOB][PIX][DEBUG] Valor: ' . json_encode($response['valor'], JSON_UNESCAPED_UNICODE));
+            }
+        }
+        
+        return $response;
     }
 
     /**
-     * PIX - Obter imagem (PNG) do QR Code (GET /pix/api/v2/cob/{txid}/imagem)
+     * PIX - Obter imagem (PNG) do QR Code (GET {{base_url}}/{{pix_base}}/cob/{{txid}}/imagem)
      * Retorna data URI pronta para uso em <img src="..." />
      */
-    public function pix_obter_qr_code_imagem($txid, $largura = 360)
+    public function pix_obter_qr_code_imagem($txid, $largura = 360, $revisao = null)
     {
-        $endpoint = '/pix/api/v2/cob/' . rawurlencode($txid) . '/imagem?largura=' . intval($largura);
+        // Construir endpoint conforme documentação: {{base_url}}/{{pix_base}}/cob/{{txid}}/imagem
+        $endpoint = $this->pix_base . '/cob/' . rawurlencode($txid) . '/imagem';
+        
+        // Adicionar parâmetros de query
+        $query_params = array('largura' => intval($largura));
+        if ($revisao !== null) {
+            $query_params['revisao'] = intval($revisao);
+        }
+        if (!empty($query_params)) {
+            $endpoint .= '?' . http_build_query($query_params);
+        }
+        
         $png_binary = $this->make_request($endpoint, 'GET', null, false, array('Accept: image/png', 'Accept-Language: pt-BR'), true);
         $data_uri = 'data:image/png;base64,' . base64_encode($png_binary);
         return $data_uri;
     }
 
+    /**
+     * PIX - Listar créditos (pix recebidos) por intervalo de tempo e filtrar por TXID
+     * Documentação: GET {{base_url}}/{{pix_base}}/pix?inicio=...&fim=...&txid=...
+     */
+    public function pix_listar_recebidos_por_txid($txid, $inicio_iso8601 = null, $fim_iso8601 = null)
+    {
+        // Janela padrão: últimas 6 horas até agora
+        if (!$inicio_iso8601) {
+            $inicio_iso8601 = gmdate('Y-m-d\TH:i:s\Z', time() - 6 * 3600);
+        }
+        if (!$fim_iso8601) {
+            $fim_iso8601 = gmdate('Y-m-d\TH:i:s\Z');
+        }
+
+        $query = http_build_query(array(
+            'inicio' => $inicio_iso8601,
+            'fim'    => $fim_iso8601,
+            'txid'   => $txid,
+        ));
+
+        $endpoint = $this->pix_base . '/pix?' . $query;
+
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[SICOOB][PIX][DEBUG] Listando PIX recebidos por TXID. TXID=' . $txid . ' inicio=' . $inicio_iso8601 . ' fim=' . $fim_iso8601);
+            error_log('[SICOOB][PIX][DEBUG] Endpoint: ' . $endpoint);
+        }
+
+        $response = $this->make_request($endpoint, 'GET', null, true, array(), true, false, 'minimal');
+
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[SICOOB][PIX][DEBUG] Resposta PIX recebidos: ' . json_encode($response, JSON_UNESCAPED_UNICODE));
+        }
+
+        return $response;
+    }
     /**
      * Criar pagamento
      */

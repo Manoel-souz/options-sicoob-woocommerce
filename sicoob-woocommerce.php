@@ -34,6 +34,20 @@ define('SICOOB_WC_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('SICOOB_WC_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('SICOOB_WC_VERSION', '1.0.0');
 
+// Autoload do Composer (para dependências opcionais como Guzzle)
+if (file_exists(SICOOB_WC_PLUGIN_PATH . 'vendor/autoload.php')) {
+    require_once SICOOB_WC_PLUGIN_PATH . 'vendor/autoload.php';
+}
+
+// Configuração da senha do certificado PFX
+// Defina a senha do certificado PFX aqui para produção
+// Exemplo: define('SICOOB_PFX_PASSWORD', 'sua_senha_aqui');
+// Se não definir aqui, a senha pode ser configurada na interface administrativa do plugin
+if (!defined('SICOOB_PFX_PASSWORD')) {
+    // Deixe vazio para usar a senha configurada na interface administrativa
+    define('SICOOB_PFX_PASSWORD', 'abcd1234');
+}
+
 /**
  * Classe principal do plugin
  */
@@ -50,6 +64,8 @@ class Sicoob_WooCommerce_Gateway
         // Permitir upload de PFX/P12 via biblioteca de mídia
         add_filter('upload_mimes', array($this, 'allow_pfx_mimes'));
         add_filter('wp_check_filetype_and_ext', array($this, 'allow_pfx_filetype'), 10, 4);
+        // Registrar rota REST de proxy/depuração (disponível em qualquer request)
+        add_action('rest_api_init', array($this, 'register_rest_routes'));
     }
 
     /**
@@ -198,6 +214,73 @@ class Sicoob_WooCommerce_Gateway
             }
         }
         return $data;
+    }
+
+    /**
+     * Rota REST para consultar cobrança por TXID via servidor (proxy da API Sicoob)
+     * GET /wp-json/sicoob/v1/cob/{txid}?order_id=123
+     */
+    public function register_rest_routes()
+    {
+        register_rest_route(
+            'sicoob/v1',
+            '/cob/(?P<txid>[^/]+)',
+            array(
+                'methods'  => 'GET',
+                'permission_callback' => '__return_true',
+                'callback' => array($this, 'rest_cob_handler')
+            )
+        );
+    }
+
+    /**
+     * Handler REST – consulta Sicoob e opcionalmente atualiza pedido
+     */
+    public function rest_cob_handler( \WP_REST_Request $request )
+    {
+        $txid = sanitize_text_field( $request->get_param('txid') );
+        $order_id = absint( $request->get_param('order_id') );
+        $logPath = trailingslashit(WP_CONTENT_DIR) . 'debug.log';
+        @file_put_contents($logPath, '['.date('Y-m-d H:i:s')."] [SICOOB][REST MAIN][START] txid={$txid} order_id={$order_id}\n", FILE_APPEND);
+
+        if ( ! class_exists('Sicoob_API') ) {
+            require_once SICOOB_WC_PLUGIN_PATH . 'includes/class-sicoob-api.php';
+        }
+
+        try {
+            $opts = get_option('woocommerce_sicoob_settings', array());
+            $client_id    = isset($opts['client_id']) ? $opts['client_id'] : '';
+            $client_secret= isset($opts['client_secret']) ? $opts['client_secret'] : '';
+            $access_token = isset($opts['access_token']) ? $opts['access_token'] : '';
+            $testmode     = isset($opts['testmode']) && $opts['testmode'] === 'yes';
+            $environment  = $testmode ? 'sandbox' : 'production';
+            $extras = array(
+                'mtls_cert_path' => isset($opts['mtls_cert_path']) ? (string)$opts['mtls_cert_path'] : '',
+                'mtls_key_path'  => isset($opts['mtls_key_path'])  ? (string)$opts['mtls_key_path']  : '',
+                'mtls_key_pass'  => isset($opts['mtls_key_pass'])  ? (string)$opts['mtls_key_pass']  : '',
+                'app_key'        => isset($opts['app_key'])        ? (string)$opts['app_key']        : '',
+            );
+
+            $api = new Sicoob_API($client_id, $client_secret, $environment, $access_token, $extras);
+            $cob = $api->pix_obter_cobranca($txid);
+            $status = isset($cob['status']) ? $cob['status'] : '';
+            @file_put_contents($logPath, '['.date('Y-m-d H:i:s').'] [SICOOB][REST MAIN][RESP] '. json_encode(array('status'=>$status,'cob'=>$cob), JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) ."\n", FILE_APPEND);
+
+            if ( $order_id && in_array($status, array('CONCLUIDA','approved'), true) ) {
+                $order = wc_get_order($order_id);
+                if ( $order && ! in_array( $order->get_status(), array('processing','completed'), true ) ) {
+                    $order->payment_complete($txid);
+                    $order->add_order_note( __( 'Pagamento PIX confirmado via REST (main).', 'sicoob-woocommerce' ) );
+                    $order->save();
+                    @file_put_contents($logPath, '['.date('Y-m-d H:i:s').'] [SICOOB][REST MAIN][ORDER UPDATED] '. json_encode(array('order_id'=>$order_id,'status'=>$order->get_status()), JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) ."\n", FILE_APPEND);
+                }
+            }
+
+            return rest_ensure_response( array('ok'=>true,'status'=>$status,'cob'=>$cob) );
+        } catch ( \Exception $e ) {
+            @file_put_contents($logPath, '['.date('Y-m-d H:i:s').'] [SICOOB][REST MAIN][ERROR] '. $e->getMessage() ."\n", FILE_APPEND);
+            return new \WP_REST_Response( array('ok'=>false,'error'=>$e->getMessage()), 500 );
+        }
     }
 }
 

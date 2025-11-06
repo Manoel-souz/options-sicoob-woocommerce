@@ -302,11 +302,30 @@ class Sicoob_Admin
 
                             <tr>
                                 <th scope="row">
-                                    <label for="sicoob_pfx_password"><?php echo esc_html__('Senha do PFX', 'sicoob-woocommerce'); ?></label>
+                                    <label for="sicoob_pfx_password"><?php echo esc_html__('Senha do Certificado PFX', 'sicoob-woocommerce'); ?></label>
                                 </th>
                                 <td>
-                                    <input type="password" id="sicoob_pfx_password" name="sicoob_pfx_password" class="regular-text" placeholder="********" />
-                                    <p class="description"><?php echo esc_html__('Será armazenada de forma criptografada.', 'sicoob-woocommerce'); ?></p>
+                                    <?php $has_password = get_option('sicoob_pfx_password_enc') ? true : false; ?>
+                                    <input type="password" 
+                                           id="sicoob_pfx_password" 
+                                           name="sicoob_pfx_password" 
+                                           class="regular-text" 
+                                           placeholder="<?php echo esc_attr__('Digite a senha do certificado PFX', 'sicoob-woocommerce'); ?>" 
+                                           autocomplete="off" />
+                                    <?php if ($has_password): ?>
+                                        <p class="description" style="color: #46b450; margin-top: 6px;">
+                                            <span class="dashicons dashicons-yes-alt" style="vertical-align: middle;"></span>
+                                            <?php echo esc_html__('Senha já configurada. Deixe em branco para manter a atual ou digite uma nova para alterar.', 'sicoob-woocommerce'); ?>
+                                        </p>
+                                    <?php else: ?>
+                                        <p class="description" style="color: #dc3232; margin-top: 6px;">
+                                            <span class="dashicons dashicons-warning" style="vertical-align: middle;"></span>
+                                            <?php echo esc_html__('Senha não configurada. Configure a senha do certificado PFX para autenticação em produção.', 'sicoob-woocommerce'); ?>
+                                        </p>
+                                    <?php endif; ?>
+                                    <p class="description" style="margin-top: 6px;">
+                                        <?php echo esc_html__('A senha será armazenada de forma criptografada no banco de dados.', 'sicoob-woocommerce'); ?>
+                                    </p>
                                 </td>
                             </tr>
                         </tbody>
@@ -522,12 +541,18 @@ class Sicoob_Admin
             }
         }
 
-        // Senha PFX (opcional)
-        if (!empty($_POST['sicoob_pfx_password'])) {
-            $pass_enc = self::encrypt_secret($_POST['sicoob_pfx_password']);
-            if ($pass_enc) {
-                update_option('sicoob_pfx_password_enc', $pass_enc, false);
+        // Senha PFX (opcional - sempre atualiza se fornecida)
+        if (isset($_POST['sicoob_pfx_password'])) {
+            $pfx_password = trim($_POST['sicoob_pfx_password']);
+            if (!empty($pfx_password)) {
+                // Criptografar e salvar a nova senha
+                $pass_enc = self::encrypt_secret($pfx_password);
+                if ($pass_enc) {
+                    update_option('sicoob_pfx_password_enc', $pass_enc, false);
+                }
             }
+            // Se o campo estiver vazio mas foi enviado, não altera (mantém a senha atual)
+            // Para remover a senha, seria necessário um campo específico de "limpar senha"
         }
 
         // Redirecionar de volta com mensagem de sucesso
@@ -596,7 +621,17 @@ class Sicoob_Admin
         $pfx_blob = get_option('sicoob_pfx_blob');
         $pfx_pass_enc = get_option('sicoob_pfx_password_enc');
         $pfx_pass = $this->decrypt_secret($pfx_pass_enc);
-        $tmp = wp_tempnam('sicoob_pfx');
+        // Usar função helper se disponível, senão usar wp_tempnam() nativo
+        if (function_exists('sicoob_wp_tempnam')) {
+            $tmp = sicoob_wp_tempnam('sicoob_pfx');
+        } elseif (function_exists('wp_tempnam')) {
+            $tmp = wp_tempnam('sicoob_pfx');
+        } else {
+            // Fallback manual
+            $dir = get_temp_dir();
+            $tmp = $dir . 'sicoob_pfx_' . uniqid() . '.tmp';
+            @touch($tmp);
+        }
         if ($pfx_blob && $tmp) {
             file_put_contents($tmp, $this->decrypt_secret($pfx_blob));
         }

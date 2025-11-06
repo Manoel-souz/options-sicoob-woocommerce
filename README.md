@@ -36,6 +36,19 @@ Plugin WordPress para integração do Sicoob com WooCommerce, permitindo aceitar
 2. Ative o plugin no painel administrativo
 3. Configure as opções do gateway
 
+### Dependência opcional (Guzzle) para requisições mTLS
+
+Para usar um cliente HTTP estilo axios/fetch no servidor com mTLS, você pode instalar o Guzzle via Composer no diretório do plugin:
+
+1) Instale o Composer no servidor (se ainda não tiver)
+2) No diretório do plugin, execute:
+
+```
+composer require guzzlehttp/guzzle:^7.9
+```
+
+O plugin detecta automaticamente `vendor/autoload.php` e usará o Guzzle quando disponível. Caso o Guzzle não esteja instalado, o plugin continuará usando `wp_remote_request` com mTLS aplicado via hook cURL.
+
 ## Configuração
 
 ### 1. Obter Credenciais do Sicoob
