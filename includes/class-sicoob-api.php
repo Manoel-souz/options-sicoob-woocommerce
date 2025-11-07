@@ -534,7 +534,7 @@ class Sicoob_API
         $token_post_fields = array(
             'client_id' => $this->client_id,
             'grant_type' => 'client_credentials',
-            'scope' => 'cob.write cob.read cobv.write cobv.read pix.write pix.read webhook.read webhook.write payloadlocation.read payloadlocation.write'
+            'scope' => 'cob.write cob.read cobv.write cobv.read pix.write pix.read webhook.read webhook.write payloadlocation.read payloadlocation.write boletos_inclusao webhooks_inclusao webhooks_consulta'
         );
         $debug_log[] = '[SICOOB] Campos enviados no POST ao token endpoint: ' . json_encode($token_post_fields);
 
@@ -769,11 +769,7 @@ class Sicoob_API
             if (!$use_auth) {
                 $headers = array_values(array_filter($headers, function ($h) { return strpos($h, 'Authorization:') !== 0; }));
             }
-            // App Key opcional (se o WAF exigir)
-            $appKey = $this->app_key ?: (defined('SICOOB_APP_KEY') ? SICOOB_APP_KEY : '');
-            if ($appKey) {
-                $headers[] = 'X-Developer-Application-Key: ' . $appKey;
-            }
+            // Nenhum header adicional requerido
         } else {
             // Padrão: mesmo conjunto de headers essenciais
             $headers = array(
@@ -789,10 +785,7 @@ class Sicoob_API
             if (!empty($this->client_secret)) {
                 $headers[] = 'client_secret: ' . $this->client_secret;
             }
-            $appKey = $this->app_key ?: (defined('SICOOB_APP_KEY') ? SICOOB_APP_KEY : '');
-            if ($appKey) {
-                $headers[] = 'X-Developer-Application-Key: ' . $appKey;
-            }
+            // Nenhum header adicional requerido
         }
         if (!empty($extra_headers)) {
             $headers = array_merge($headers, $extra_headers);
@@ -1023,8 +1016,26 @@ class Sicoob_API
             'returnUrl' => $payment_data['return_url'],
             'cancelUrl' => $payment_data['cancel_url'],
             'notificationUrl' => home_url('/wc-api/sicoob_webhook'),
-            'paymentMethod' => 'CREDIT_CARD'
         );
+
+        // Método de pagamento: default para BOLETO se informado, senão mantém fluxo antigo
+        $method = isset($payment_data['payment_method']) ? strtoupper($payment_data['payment_method']) : null;
+        if ($method === 'BOLETO') {
+            $data['paymentMethod'] = 'BOLETO';
+            // Campos opcionais de boleto, se informados
+            if (!empty($payment_data['boleto']) && is_array($payment_data['boleto'])) {
+                $data['boleto'] = $payment_data['boleto'];
+            } else {
+                // Defaults mínimos razoáveis (ajuste conforme necessidade/contrato)
+                $data['boleto'] = array(
+                    'dueDate' => date('Y-m-d', time() + 3 * 86400),
+                    // 'instructions' => 'Pague até o vencimento.',
+                );
+            }
+        } else {
+            // Fluxo anterior (ex.: cartão) – manter compatibilidade
+            $data['paymentMethod'] = 'CREDIT_CARD';
+        }
 
         return $this->make_request($endpoint, 'POST', $data);
     }
@@ -1176,5 +1187,26 @@ class Sicoob_API
     {
         $endpoint = '/boletos/pagamentos/agendamentos/' . rawurlencode($id_pagamento);
         return $this->make_request($endpoint, 'DELETE', null, true, array('Accept-Language: pt-BR'), true, true);
+    }
+
+    /**
+     * BOLETO - Emitir boleto (POST /boletos)
+     * Corpo conforme documentação oficial.
+     */
+    public function boleto_emitir($payload, $idempotency_key = null)
+    {
+        // Endpoint correto conforme documentação: /cobranca-bancaria/v3/boletos
+        // Usar base_url (não base_url_pagamentos) pois o endpoint é completo
+        $endpoint = '/cobranca-bancaria/v3/boletos';
+        $headers = array('Accept-Language: pt-BR');
+        if ($idempotency_key) {
+            $headers[] = 'X-Idempotency-Key: ' . $idempotency_key;
+        }
+        // Logs úteis
+        $this->sicoob_debug_log('BOLETO EMITIR REQUEST', array('endpoint' => $endpoint, 'payload' => $payload));
+        // Usar base_url (não use_pagamentos_base) pois o endpoint já é completo
+        $resp = $this->make_request($endpoint, 'POST', $payload, true, $headers, true, false);
+        $this->sicoob_debug_log('BOLETO EMITIR RESPONSE', $resp);
+        return $resp;
     }
 }
