@@ -390,7 +390,42 @@ class WC_Gateway_Sicoob extends WC_Payment_Gateway
                 }
                 return false;
             }
+            
+            // Validar dados de endereço do pagador (obrigatórios para boleto)
+            if (function_exists('WC') && WC()->customer) {
+                $billing_address_1 = WC()->customer->get_billing_address_1();
+                $billing_neighborhood = WC()->customer->get_meta('billing_neighborhood');
+                $billing_city = WC()->customer->get_billing_city();
+                $billing_postcode = WC()->customer->get_billing_postcode();
+                $billing_state = WC()->customer->get_billing_state();
+                
+                if (empty($billing_address_1)) {
+                    wc_add_notice(__('O endereço de cobrança do pagador é obrigatório para pagamento via Boleto. Por favor, preencha todos os dados de endereço.', 'sicoob-woocommerce'), 'error');
+                    return false;
+                }
+                
+                if (empty($billing_neighborhood)) {
+                    wc_add_notice(__('O bairro do endereço de cobrança é obrigatório para pagamento via Boleto. Por favor, preencha todos os dados de endereço.', 'sicoob-woocommerce'), 'error');
+                    return false;
+                }
+                
+                if (empty($billing_city)) {
+                    wc_add_notice(__('A cidade do endereço de cobrança é obrigatória para pagamento via Boleto. Por favor, preencha todos os dados de endereço.', 'sicoob-woocommerce'), 'error');
+                    return false;
+                }
+                
+                if (empty($billing_postcode)) {
+                    wc_add_notice(__('O CEP do endereço de cobrança é obrigatório para pagamento via Boleto. Por favor, preencha todos os dados de endereço.', 'sicoob-woocommerce'), 'error');
+                    return false;
+                }
+                
+                if (empty($billing_state)) {
+                    wc_add_notice(__('O estado (UF) do endereço de cobrança é obrigatório para pagamento via Boleto. Por favor, preencha todos os dados de endereço.', 'sicoob-woocommerce'), 'error');
+                    return false;
+                }
+            }
         }
+        
         return true;
     }
     /**
@@ -1669,9 +1704,25 @@ class WC_Gateway_Sicoob extends WC_Payment_Gateway
                 $benef_cnpj  = preg_replace('/\D+/', '', (string) $this->get_option('benef_final_cpf_cnpj'));
                 $benef_nome  = trim((string) $this->get_option('benef_final_nome'));
 
-                $numeroCliente        = intval($this->get_option('boleto_numero_cliente', 0));
+                // Usar número de cliente 3536700 conforme solicitado
+                $numeroCliente        = 3536700;
                 $codigoModalidade     = intval($this->get_option('boleto_codigo_modalidade', 1));
-                $numeroContaCorrente  = $this->get_option('boleto_numero_conta_corrente', '0');
+                $numeroContaCorrente  = trim($this->get_option('boleto_numero_conta_corrente', '0'));
+                
+                // Limpar formatação do número da conta corrente (remover hífens, espaços, etc)
+                $numeroContaCorrente_limpo = preg_replace('/[^0-9]/', '', $numeroContaCorrente);
+                
+                // Validar que numeroContaCorrente está preenchido corretamente
+                if (empty($numeroContaCorrente_limpo) || $numeroContaCorrente_limpo === '0' || intval($numeroContaCorrente_limpo) === 0) {
+                    wc_add_notice(__('O número da conta corrente deve estar configurado corretamente nas configurações do gateway para gerar boletos.', 'sicoob-woocommerce'), 'error');
+                    return array(
+                        'result' => 'fail',
+                        'redirect' => ''
+                    );
+                }
+                
+                // Usar o valor limpo (apenas números)
+                $numeroContaCorrente = $numeroContaCorrente_limpo;
                 $especieDocumento     = $this->get_option('boleto_especie_documento', 'DM');
                 $identEmissao         = intval($this->get_option('boleto_ident_emissao', 1));
                 $identDistribuicao    = intval($this->get_option('boleto_ident_distribuicao', 1));
@@ -1735,13 +1786,54 @@ class WC_Gateway_Sicoob extends WC_Payment_Gateway
                 $pagador_cidade= $order->get_billing_city();
                 $pagador_cep   = preg_replace('/\D+/', '', (string) $order->get_billing_postcode());
                 $pagador_uf    = $order->get_billing_state();
+                
+                // Validar que todos os dados de endereço do pagador estão preenchidos (até o bairro)
+                if (empty($pagador_end)) {
+                    wc_add_notice(__('O endereço do pagador é obrigatório para gerar o boleto. Por favor, preencha todos os dados de endereço no checkout.', 'sicoob-woocommerce'), 'error');
+                    return array(
+                        'result' => 'fail',
+                        'redirect' => ''
+                    );
+                }
+                
+                if (empty($pagador_bairro)) {
+                    wc_add_notice(__('O bairro do endereço do pagador é obrigatório para gerar o boleto. Por favor, preencha todos os dados de endereço no checkout.', 'sicoob-woocommerce'), 'error');
+                    return array(
+                        'result' => 'fail',
+                        'redirect' => ''
+                    );
+                }
+                
+                if (empty($pagador_cidade)) {
+                    wc_add_notice(__('A cidade do endereço do pagador é obrigatória para gerar o boleto. Por favor, preencha todos os dados de endereço no checkout.', 'sicoob-woocommerce'), 'error');
+                    return array(
+                        'result' => 'fail',
+                        'redirect' => ''
+                    );
+                }
+                
+                if (empty($pagador_cep)) {
+                    wc_add_notice(__('O CEP do endereço do pagador é obrigatório para gerar o boleto. Por favor, preencha todos os dados de endereço no checkout.', 'sicoob-woocommerce'), 'error');
+                    return array(
+                        'result' => 'fail',
+                        'redirect' => ''
+                    );
+                }
+                
+                if (empty($pagador_uf)) {
+                    wc_add_notice(__('O estado (UF) do endereço do pagador é obrigatório para gerar o boleto. Por favor, preencha todos os dados de endereço no checkout.', 'sicoob-woocommerce'), 'error');
+                    return array(
+                        'result' => 'fail',
+                        'redirect' => ''
+                    );
+                }
 
                 // Montar payload conforme formato fornecido pelo usuário
                 // IMPORTANTE: beneficiarioFinal vem ANTES de pagador
                 $payload_boleto = array(
                     'numeroCliente' => (int)$numeroCliente,
                     'codigoModalidade' => (int)$codigoModalidade,
-                    'numeroContaCorrente' => is_numeric($numeroContaCorrente) ? (int)$numeroContaCorrente : 0,
+                    'numeroContaCorrente' => (int)$numeroContaCorrente,
                     'codigoEspecieDocumento' => (string)$especieDocumento,
                     'dataEmissao' => (string)$emissao,
                     'nossoNumero' => (string)$nossoNumero, // String de 20 caracteres conforme formato
@@ -1768,8 +1860,6 @@ class WC_Gateway_Sicoob extends WC_Payment_Gateway
                     'valorJurosMora' => (float)$juros_valor,
                     'numeroParcela' => (int)$parcelas,
                     'aceite' => (bool)true,
-                    'codigoNegativacao' => (int)$neg_codigo,
-                    'numeroDiasNegativacao' => (int)$neg_dias,
                     'codigoProtesto' => (int)$prot_codigo,
                     'numeroDiasProtesto' => (int)$prot_dias,
                 );
@@ -1804,12 +1894,6 @@ class WC_Gateway_Sicoob extends WC_Payment_Gateway
                 if (!empty($rateio)) {
                     $payload_boleto['rateioCreditos'] = $rateio;
                 }
-                
-                // Adicionar codigoCadastrarPIX
-                $payload_boleto['codigoCadastrarPIX'] = (int)$cad_pix;
-                
-                // IMPORTANTE: numeroContratoCobranca DEVE ser igual a numeroCliente (exigência da API Sicoob)
-                $payload_boleto['numeroContratoCobranca'] = (int)$numeroCliente;
 
                 // Salvar dados do pagador no pedido para referência
                 if ($pagador_nome_form) {
